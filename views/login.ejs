@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | +Pulse</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Silkscreen', monospace;
+      background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .login-container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .logo h1 {
+      color: #ff2c58;
+      margin: 0;
+      font-size: 2rem;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-size: 0.9rem;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+      box-sizing: border-box;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #ff2c58;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Silkscreen', monospace;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .alert-danger {
+      background: #ffebee;
+      color: #c62828;
+    }
+    
+    .alert-success {
+      background-color: #e6ffed;
+      color: #28a745;
+      border: 1px solid #b7ebcb;
+    }
+
+    .alert-error {
+      background-color: #ffebed;
+      color: #dc3545;
+      border: 1px solid #f7c6cb;
+    }
+    
+    .register-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .register-link a {
+      color: #ff2c58;
+      text-decoration: none;
+    }
+    
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">
+      <h1>+pulse</h1>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="alert alert-success">
+        <%= success %>
+      </div>
+    <% } %>
+    
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-error">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form action="/login" method="POST">
+      <div class="form-group">
+        <label for="UserName">Username</label>
+        <input 
+          type="text" 
+          id="UserName" 
+          name="UserName" 
+          value="<%= typeof formData !== 'undefined' && formData.UserName ? formData.UserName : '' %>"
+          required
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="Password">Password</label>
+        <input 
+          type="password" 
+          id="Password" 
+          name="Password" 
+          required
+        >
+      </div>
+      
+      <button type="submit" class="btn">Login</button>
+    </form>
+    
+    <div class="register-link">
+      Don't have an account? <a href="/register">Sign up here</a>
+    </div>
+  </div>
+
+</body>
+</html>

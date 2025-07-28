@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Quest | Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+  <style>
+    .admin-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .form-container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .form-header h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: bold;
+    }
+    
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: 'Silkscreen', monospace;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    
+    .form-group textarea {
+      height: 150px;
+      resize: vertical;
+    }
+    
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #ff2c58;
+    }
+    
+    .quiz-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+    
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .quiz-item {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .quiz-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Silkscreen', monospace;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: #f8f9fa;
+      color: #333;
+      border: 2px solid #e0e0e0;
+    }
+    
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+    }
+    
+    .error {
+      background: #ffebee;
+      color: #c62828;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .help-text {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar.ejs') %>
+  
+  <div class="admin-container">
+    <div class="form-container">
+      <div class="form-header">
+        <h1>Edit Chapter</h1>
+        <p>Update chapter in <strong><%= module.Title %></strong></p>
+      </div>
+      
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+      
+      <form method="POST" action="/admin/modules/<%= module.ModuleID %>/chapters/<%= chapter.ChapterID %>/edit">
+        <div class="form-group">
+          <label for="title">Chapter Title *</label>
+          <input type="text" id="title" name="title" required placeholder="Enter chapter title" value="<%= chapter.Title %>">
+        </div>
+        
+        <div class="form-group">
+          <label for="content">Chapter Content *</label>
+          <textarea id="content" name="content" required placeholder="Enter the learning content for this chapter (HTML allowed)"><%= chapter.Content %></textarea>
+          <div class="help-text">You can use HTML tags for formatting</div>
+        </div>
+          
+        <div class="form-group">
+          <label for="chapterOrder">Chapter Order</label>
+          <input type="number" id="chapterOrder" name="chapterOrder" placeholder="Chapter order (1, 2, 3...)" value="<%= chapter.ChapterOrder || 1 %>" min="1">
+          <div class="help-text">The order in which this chapter appears in the module</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="tokenReward">Token Reward</label>
+          <input type="number" id="tokenReward" name="tokenReward" placeholder="Tokens awarded for completion" value="<%= chapter.TokenReward || 10 %>" min="0">
+          <div class="help-text">Number of tokens users receive for completing this chapter</div>
+        </div>
+        
+        <div class="quiz-section">
+          <div class="quiz-header">
+            <h3>Quiz Questions</h3>
+            <button type="button" class="btn btn-secondary btn-small" onclick="addQuizQuestion()">Add Question</button>
+          </div>
+          
+          <div id="quiz-questions">
+            <!-- Existing quiz questions will be populated here -->
+          </div>
+          
+          <input type="hidden" id="quizQuestions" name="quizQuestions" value="">
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Update Chapter</button>
+          <a href="/admin/modules/<%= module.ModuleID %>/chapters" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let questionCount = 0;
+    let existingQuizQuestions = [];
+
+    // Load existing quiz questions - using safe JSON parsing
+    try {
+      // Convert the EJS quizQuestions data to JavaScript array
+      existingQuizQuestions = <%- JSON.stringify(quizQuestions || []) %>;
+      console.log('Loaded quiz questions:', existingQuizQuestions);
+    } catch (e) {
+      console.error('Error loading quiz questions:', e);
+      existingQuizQuestions = [];
+    }
+
+    function addQuizQuestion() {
+      questionCount++;
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'quiz-item';
+      questionDiv.id = 'question-' + questionCount;
+      
+      questionDiv.innerHTML = 
+        '<div class="quiz-item-header">' +
+          '<h4>Question ' + questionCount + '</h4>' +
+          '<button type="button" class="btn btn-secondary btn-small" onclick="removeQuizQuestion(' + questionCount + ')">Remove</button>' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label>Statement *</label>' +
+          '<textarea class="question-text" placeholder="Enter the true/false statement" required></textarea>' +
+          '<div class="help-text">Enter a statement that can be answered with True or False</div>' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label>Correct Answer *</label>' +
+          '<select class="question-answer" required>' +
+            '<option value="">Select correct answer</option>' +
+            '<option value="1">True</option>' +
+            '<option value="0">False</option>' +
+          '</select>' +
+        '</div>';
+      
+      document.getElementById('quiz-questions').appendChild(questionDiv);
+      updateQuizQuestionsField();
+    }
+
+    function removeQuizQuestion(questionId) {
+      const questionDiv = document.getElementById('question-' + questionId);
+      if (questionDiv) {
+        questionDiv.remove();
+        updateQuizQuestionsField();
+      }
+    }
+
+    function updateQuizQuestionsField() {
+      const questions = [];
+      const questionDivs = document.querySelectorAll('.quiz-item');
+      
+      questionDivs.forEach(function(div) {
+        const questionText = div.querySelector('.question-text').value.trim();
+        const questionAnswer = div.querySelector('.question-answer').value;
+        
+        if (questionText && questionAnswer !== '') {
+          questions.push({
+            question: questionText,
+            answer: parseInt(questionAnswer) // Convert to integer (1 for true, 0 for false)
+          });
+        }
+      });
+      
+      document.getElementById('quizQuestions').value = JSON.stringify(questions);
+    }
+
+    // Load existing questions on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOMContentLoaded - Quiz questions to load:', existingQuizQuestions);
+      
+      if (existingQuizQuestions && existingQuizQuestions.length > 0) {
+        existingQuizQuestions.forEach(function(question, index) {
+          console.log('Loading question', index + 1, ':', question);
+          console.log('Question object keys:', Object.keys(question));
+          console.log('Question text:', question.question);
+          console.log('All question data:', JSON.stringify(question, null, 2));
+          
+          questionCount++;
+          const questionDiv = document.createElement('div');
+          questionDiv.className = 'quiz-item';
+          questionDiv.id = 'question-' + questionCount;
+          
+          // Convert boolean/numeric answer to string for option selection
+          const answerValue = question.answer == 1 || question.answer === true || question.answer === 'true' ? '1' : '0';
+          console.log('Answer value for question', index + 1, ':', answerValue);
+          
+          questionDiv.innerHTML = 
+            '<div class="quiz-item-header">' +
+              '<h4>Question ' + questionCount + '</h4>' +
+              '<button type="button" class="btn btn-secondary btn-small" onclick="removeQuizQuestion(' + questionCount + ')">Remove</button>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>Statement *</label>' +
+              '<textarea class="question-text" placeholder="Enter the true/false statement" required></textarea>' +
+              '<div class="help-text">Enter a statement that can be answered with True or False</div>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label>Correct Answer *</label>' +
+              '<select class="question-answer" required>' +
+                '<option value="">Select correct answer</option>' +
+                '<option value="1"' + (answerValue === '1' ? ' selected' : '') + '>True</option>' +
+                '<option value="0"' + (answerValue === '0' ? ' selected' : '') + '>False</option>' +
+              '</select>' +
+            '</div>';
+          
+          document.getElementById('quiz-questions').appendChild(questionDiv);
+          
+          // Set the textarea value separately to avoid HTML encoding issues
+          const questionTextarea = questionDiv.querySelector('.question-text');
+          // Try different possible column names for the question text
+          const questionText = question.question || question.Question || question.statement || question.Statement || '';
+          questionTextarea.value = questionText;
+          console.log('Set textarea value for question', index + 1, ':', questionText);
+          console.log('Question text source:', question.question ? 'question' : question.Question ? 'Question' : question.statement ? 'statement' : question.Statement ? 'Statement' : 'none found');
+        });
+      } else {
+        console.log('No quiz questions found to load');
+      }
+      
+      updateQuizQuestionsField();
+      
+      // Add event listeners to update hidden field when inputs change
+      document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('question-text') || e.target.classList.contains('question-answer')) {
+          updateQuizQuestionsField();
+        }
+      });
+    });
+  </script>

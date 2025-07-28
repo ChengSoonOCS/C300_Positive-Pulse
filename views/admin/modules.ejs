@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Modules | Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .page-header h1 {
+      color: #333;
+      margin: 0;
+    }
+    
+    .btn {
+      background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-family: 'Silkscreen', monospace;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    }
+    
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+    }
+    
+    .module-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    
+    .module-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .module-header {
+      background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+      color: white;
+      padding: 20px;
+    }
+    
+    .module-title {
+      font-size: 1.3rem;
+      margin: 0 0 8px 0;
+    }
+    
+    .module-stats {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    
+    .module-body {
+      padding: 20px;
+    }
+    
+    .module-description {
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    
+    .module-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 0.8rem;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+    
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar.ejs') %>
+  
+  <div class="admin-container">
+    <div class="page-header">
+      <h1>Manage Modules</h1>
+      <a href="/admin/modules/new" class="btn">Create New Module</a>
+    </div>
+    
+    <% if (modules.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-state-icon">📚</div>
+        <h2>No modules yet</h2>
+        <p>Create your first learning module to get started.</p>
+        <a href="/admin/modules/new" class="btn">Create Module</a>
+      </div>
+    <% } else { %>
+      <div class="modules-grid">
+        <% modules.forEach(module => { %>
+          <div class="module-card">
+            <div class="module-header">
+              <div class="module-title"><%= module.Title %></div>
+              <div class="module-stats"><%= module.chapterCount %> chapters</div>
+            </div>
+            <div class="module-body">
+              <div class="module-description">
+                <%= module.Description %>
+              </div>
+              <div class="module-actions">
+                <a href="/admin/modules/<%= module.ModuleID %>/chapters" class="btn btn-small">Manage Chapters</a>
+                <a href="/admin/modules/<%= module.ModuleID %>/edit" class="btn btn-small">Edit Module</a>
+                <a href="/education/modules/<%= module.ModuleID %>" class="btn btn-small">Preview</a>
+                <button class="btn btn-danger btn-small delete-module-btn" data-module-id="<%= module.ModuleID %>">Delete</button>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const deleteButtons = document.querySelectorAll('.delete-module-btn');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const moduleId = this.getAttribute('data-module-id');
+          if (confirm('Are you sure you want to delete this module? This action cannot be undone.')) {
+            fetch(`/admin/modules/${moduleId}`, {
+              method: 'DELETE'
+            }).then(() => {
+              window.location.reload();
+            });
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

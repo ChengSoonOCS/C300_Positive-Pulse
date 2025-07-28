@@ -1,0 +1,184 @@
+:root {
+  --primary-color: #ff2c58;
+  --primary-light: #ff4570;
+  --primary-dark: #e61e4a;
+  --secondary-color: #ff758f;
+  --accent-color: #ffa8b6;
+  --background-light: #fff5f7;
+  --background-white: #ffffff;
+  --text-dark: #2d1b69;
+  --text-light: #666666;
+  --border-color: #ffd6dd;
+  --shadow-primary: rgba(255, 44, 88, 0.2);
+  --shadow-light: rgba(255, 44, 88, 0.1);
+}
+
+.nav-item.dropdown {
+  position: relative;
+}
+
+.profile-pic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background: white;
+  list-style: none;
+  padding: 5px 0;
+  margin: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border-radius: 4px;
+}
+
+.dropdown-menu li {
+  padding: 8px 16px;
+}
+
+.dropdown-menu li a {
+  color: #333;
+  text-decoration: none;
+}
+
+.dropdown-menu li:hover {
+  background: #f5f5f5;
+}
+
+.nav-item.dropdown:hover .dropdown-menu,
+.nav-item.dropdown.open .dropdown-menu {
+  display: block;
+}
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px var(--shadow-primary);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 80px;
+            margin-right: 10px;
+        }
+
+        .logo span {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+        }
+
+            body {
+            margin: 0;
+            font-family: 'Silkscreen', monospace !important;
+            background-color: white;
+            color: black;
+        }
+
+        * {
+            font-family: 'Silkscreen', monospace !important;
+        }
+
+        /* Global Button Styling */
+        .btn-primary, .btn.btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px var(--shadow-light);
+        }
+
+        .btn-primary:hover, .btn.btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow-primary);
+        }
+
+        .btn-secondary, .btn.btn-secondary {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 12px var(--shadow-light);
+        }
+
+        .btn-secondary:hover, .btn.btn-secondary:hover {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow-primary);
+            color: white;
+        }
+
+        /* Global Form Styling */
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--shadow-light);
+            outline: none;
+        }
+
+        /* Global Card Styling */
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px var(--shadow-primary);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 16px 16px 0 0 !important;
+            border: none;
+        }

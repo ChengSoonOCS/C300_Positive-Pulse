@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Insurance Plan | Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+  <style>
+    .admin-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .form-container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .form-header h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    .form-header .plan-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+    
+    .plan-info {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #ff2c58;
+    }
+    
+    .plan-info strong {
+      color: #ff2c58;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: bold;
+    }
+    
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: 'Silkscreen', monospace;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    
+    .form-group textarea {
+      height: 120px;
+      resize: vertical;
+    }
+    
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none;
+      border-color: #ff2c58;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .coverage-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+      border-left: 4px solid #ff2c58;
+    }
+    
+    .coverage-header {
+      margin-bottom: 15px;
+    }
+    
+    .coverage-header h3 {
+      color: #333;
+      margin-bottom: 5px;
+    }
+    
+    .riders-info {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border-left: 4px solid #2196f3;
+    }
+    
+    .riders-info h4 {
+      color: #1976d2;
+      margin-bottom: 10px;
+    }
+    
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Silkscreen', monospace;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: #f8f9fa;
+      color: #333;
+      border: 2px solid #e0e0e0;
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+      color: white;
+    }
+    
+    .error {
+      background: #ffebee;
+      color: #c62828;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .help-text {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+    }
+    
+    .required {
+      color: #ff2c58;
+    }
+    
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .admin-container {
+        padding: 10px;
+      }
+      
+      .form-container {
+        padding: 20px;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar.ejs') %>
+  
+  <div class="admin-container">
+    <div class="form-container">
+      <div class="form-header">
+        <div class="plan-icon">🛡️</div>
+        <h1>Edit Insurance Plan</h1>
+        <div class="plan-info">
+          Editing: <strong><%= plan.PlanName %></strong> (ID: #<%= plan.IntegratedShieldPlanID %>)
+        </div>
+      </div>
+      
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+      
+      <form method="POST" action="/admin/insurance-plans/<%= plan.IntegratedShieldPlanID %>/edit">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="planName">Plan Name <span class="required">*</span></label>
+            <input type="text" id="planName" name="planName" required placeholder="e.g., PruShield Plus" value="<%= plan.PlanName %>">
+            <div class="help-text">The official name of the insurance plan</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="providerName">Provider Name <span class="required">*</span></label>
+            <input type="text" id="providerName" name="providerName" required placeholder="e.g., Prudential" value="<%= plan.ProviderName %>">
+            <div class="help-text">The insurance company providing this plan</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="premiumRange">Premium Range <span class="required">*</span></label>
+          <input type="text" id="premiumRange" name="premiumRange" required placeholder="e.g., $200-400/year" value="<%= plan.PremiumRange %>">
+          <div class="help-text">The cost range for this insurance plan per year</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="eligibilityCriteria">Eligibility Criteria <span class="required">*</span></label>
+          <textarea id="eligibilityCriteria" name="eligibilityCriteria" required placeholder="e.g., All Singaporeans and PRs aged 18-65"><%= plan.EligibilityCriteria %></textarea>
+          <div class="help-text">Who is eligible to apply for this plan</div>
+        </div>
+        
+        <div class="coverage-section">
+          <div class="coverage-header">
+            <h3>📋 Coverage Details</h3>
+            <p class="help-text">Configure the coverage details for this plan</p>
+          </div>
+          
+          <div class="form-group">
+            <label for="coverageDetailsId">Coverage Details Option</label>
+            <select id="coverageDetailsId" name="coverageDetailsId" onchange="toggleCoverageFields()">
+              <option value="">Select existing coverage details</option>
+              <% if (coverageDetails && coverageDetails.length > 0) { %>
+                <% coverageDetails.forEach(coverage => { %>
+                  <option value="<%= coverage.CoverageDetailsID %>" 
+                          <%= plan.CoverageDetailsID === coverage.CoverageDetailsID ? 'selected' : '' %>>
+                    <%= coverage.WardType %> - <%= coverage.HospitalType %> (Out-of-pocket: $<%= coverage.OutOfPocketExpense %>)
+                  </option>
+                <% }) %>
+              <% } %>
+              <option value="new">Create New Coverage Details</option>
+            </select>
+            <div class="help-text">Choose existing coverage details or create new ones</div>
+          </div>
+          
+          <div id="newCoverageFields" style="display: none;">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="wardType">Ward Type</label>
+                <select id="wardType" name="wardType">
+                  <option value="">Select Ward Type</option>
+                  <option value="A" <%= plan.WardType === 'A' ? 'selected' : '' %>>Class A</option>
+                  <option value="B1" <%= plan.WardType === 'B1' ? 'selected' : '' %>>Class B1</option>
+                  <option value="B2" <%= plan.WardType === 'B2' ? 'selected' : '' %>>Class B2</option>
+                  <option value="C" <%= plan.WardType === 'C' ? 'selected' : '' %>>Class C</option>
+                </select>
+                <div class="help-text">Hospital ward class coverage</div>
+              </div>
+              
+              <div class="form-group">
+                <label for="hospitalType">Hospital Type</label>
+                <select id="hospitalType" name="hospitalType">
+                  <option value="">Select Hospital Type</option>
+                  <option value="public" <%= plan.HospitalType === 'public' ? 'selected' : '' %>>Public Hospital</option>
+                  <option value="private" <%= plan.HospitalType === 'private' ? 'selected' : '' %>>Private Hospital</option>
+                  <option value="public/private" <%= plan.HospitalType === 'public/private' ? 'selected' : '' %>>Public & Private</option>
+                </select>
+                <div class="help-text">Type of hospitals covered</div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="outOfPocketExpense">Out-of-Pocket Expense</label>
+              <input type="number" id="outOfPocketExpense" name="outOfPocketExpense" 
+                     placeholder="e.g., 3000" step="0.01" 
+                     value="<%= plan.OutOfPocketExpense || '' %>">
+              <div class="help-text">Expected out-of-pocket expense in SGD</div>
+            </div>
+          </div>
+          
+          
+        
+        <% if (companies && companies.length > 0) { %>
+        <div class="form-group">
+          <label for="insuranceCompanyId">Insurance Company (Optional)</label>
+          <select id="insuranceCompanyId" name="insuranceCompanyId">
+            <option value="">Select a company (optional)</option>
+            <% companies.forEach(company => { %>
+              <option value="<%= company.InsuranceCompanyID %>" 
+                      <%= plan.InsuranceCompanyID === company.InsuranceCompanyID ? 'selected' : '' %>>
+                <%= company.InsuranceCompanyName %>
+              </option>
+            <% }) %>
+          </select>
+          <div class="help-text">Link this plan to a specific insurance company if available</div>
+        </div>
+        <% } %>
+        
+        <% if (riders && riders.length > 0) { %>
+        <div class="form-group">
+          <label for="riderId">Rider (Optional)</label>
+          <select id="riderId" name="riderId">
+            <option value="">Select a rider (optional)</option>
+            <% riders.forEach(rider => { %>
+              <option value="<%= rider.RiderID %>" 
+                      <%= plan.RiderID === rider.RiderID ? 'selected' : '' %>>
+                <%= rider.Name %>
+              </option>
+            <% }) %>
+          </select>
+          <div class="help-text">Attach a rider to this insurance plan if available</div>
+        </div>
+        <% } %>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Update Insurance Plan</button>
+          <a href="/admin/insurance-plans" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    // Toggle coverage fields based on selection
+    function toggleCoverageFields() {
+      const coverageDetailsId = document.getElementById('coverageDetailsId');
+      const newCoverageFields = document.getElementById('newCoverageFields');
+      
+      if (coverageDetailsId.value === 'new') {
+        newCoverageFields.style.display = 'block';
+        // Make new coverage fields required when creating new
+        document.getElementById('wardType').required = true;
+        document.getElementById('hospitalType').required = true;
+        document.getElementById('outOfPocketExpense').required = true;
+      } else {
+        newCoverageFields.style.display = 'none';
+        // Remove required attribute when using existing
+        document.getElementById('wardType').required = false;
+        document.getElementById('hospitalType').required = false;
+        document.getElementById('outOfPocketExpense').required = false;
+      }
+    }
+    
+    // Form validation
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize coverage fields based on current plan data
+      const coverageDetailsId = document.getElementById('coverageDetailsId');
+      if (coverageDetailsId.value === '' && 
+          ('<%= plan.WardType %>' || '<%= plan.HospitalType %>' || '<%= plan.OutOfPocketExpense %>')) {
+        // If plan has coverage data but no CoverageDetailsID, show new fields
+        coverageDetailsId.value = 'new';
+      }
+      toggleCoverageFields();
+      
+      const form = document.querySelector('form');
+      const requiredFields = form.querySelectorAll('[required]');
+      
+      form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+          if (!field.value.trim()) {
+            field.style.borderColor = '#ff2c58';
+            isValid = false;
+          } else {
+            field.style.borderColor = '#e0e0e0';
+          }
+        });
+        
+        if (!isValid) {
+          e.preventDefault();
+          alert('Please fill in all required fields.');
+        }
+      });
+      
+      // Reset border color on input
+      requiredFields.forEach(field => {
+        field.addEventListener('input', function() {
+          if (this.value.trim()) {
+            this.style.borderColor = '#e0e0e0';
+          }
+        });
+      });
+      
+      // Confirm before leaving if form has been modified
+      let formModified = false;
+      const formElements = form.querySelectorAll('input, textarea, select');
+      
+      formElements.forEach(element => {
+        element.addEventListener('change', function() {
+          formModified = true;
+        });
+      });
+      
+      window.addEventListener('beforeunload', function(e) {
+        if (formModified) {
+          e.preventDefault();
+          e.returnValue = '';
+        }
+      });
+      
+      // Don't show warning when submitting form
+      form.addEventListener('submit', function() {
+        formModified = false;
+      });
+    });
+  </script>
+</body>
+</html>

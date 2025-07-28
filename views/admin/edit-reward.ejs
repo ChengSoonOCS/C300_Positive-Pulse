@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Reward | Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+  <style>
+    .admin-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .form-container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .form-header h1 {
+      color: #333;
+      margin: 0;
+      font-size: 2rem;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: bold;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: 'Silkscreen', monospace;
+      font-size: 0.9rem;
+      transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #ff2c58;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .form-row .form-group {
+      flex: 1;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+    
+    .btn {
+      background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-family: 'Silkscreen', monospace;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    }
+    
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+      margin-top: 30px;
+    }
+    
+    .error {
+      background: #fed7d7;
+      color: #c53030;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #feb2b2;
+    }
+    
+    .help-text {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 4px;
+    }
+    
+    .reward-preview {
+      background: #f8f9fa;
+      border: 2px dashed #e0e0e0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .preview-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+    
+    .preview-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    
+    .preview-cost {
+      color: #ff2c58;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .preview-description {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .preview-status {
+      margin-top: 10px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: inline-block;
+    }
+    
+    .status-active {
+      background: #c6f6d5;
+      color: #2f855a;
+    }
+    
+    .status-inactive {
+      background: #fed7d7;
+      color: #c53030;
+    }
+    
+    .reward-info {
+      background: #e6f3ff;
+      border-left: 4px solid #3182ce;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .reward-info h3 {
+      margin: 0 0 10px 0;
+      color: #2c5282;
+    }
+    
+    .reward-info p {
+      margin: 5px 0;
+      color: #2c5282;
+    }
+    
+    @media (max-width: 768px) {
+      .form-row {
+        flex-direction: column;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar.ejs') %>
+  
+  <div class="admin-container">
+    <div class="form-container">
+      <div class="form-header">
+        <h1>Edit Reward</h1>
+        <p>Update reward details and availability</p>
+      </div>
+      
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+      
+      <div class="reward-info">
+        <h3>Current Reward Stats</h3>
+        <p><strong>Created:</strong> <%= new Date(reward.CreatedAt).toLocaleDateString() %></p>
+        <p><strong>Total Redeemed:</strong> <%= reward.TotalRedeemed || 0 %> times</p>
+        <p><strong>Status:</strong> <%= reward.IsActive ? 'Active' : 'Inactive' %></p>
+      </div>
+      
+      <div class="reward-preview">
+        <div class="preview-icon">🎁</div>
+        <div class="preview-name" id="preview-name"><%= reward.RewardName %></div>
+        <div class="preview-cost" id="preview-cost">🪙 <%= reward.TokenCost %> tokens</div>
+        <div class="preview-description" id="preview-description"><%= reward.Description %></div>
+        <div class="preview-status <%= reward.IsActive ? 'status-active' : 'status-inactive' %>" id="preview-status">
+          <%= reward.IsActive ? 'Active' : 'Inactive' %>
+        </div>
+      </div>
+      
+      <form method="POST" action="/admin/rewards/<%= reward.RewardID %>/edit">
+        <div class="form-group">
+          <label for="name">Reward Name *</label>
+          <input type="text" id="name" name="name" required maxlength="100" 
+                 value="<%= reward.RewardName %>">
+          <div class="help-text">Choose a clear, descriptive name for the reward</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="description">Description *</label>
+          <textarea id="description" name="description" required maxlength="500"><%= reward.Description %></textarea>
+          <div class="help-text">Provide clear instructions on how to use this reward</div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cost">Token Cost *</label>
+            <input type="number" id="cost" name="cost" required min="1" max="10000" 
+                   value="<%= reward.TokenCost %>">
+            <div class="help-text">How many tokens required to redeem</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="quantity">Available Quantity</label>
+            <input type="number" id="quantity" name="quantity" min="1" max="1000" 
+                   value="<%= reward.QuantityAvailable %>">
+            <div class="help-text">Number of rewards available</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="active">Status</label>
+          <div class="checkbox-group">
+            <input type="checkbox" id="active" name="active" <%= reward.IsActive ? 'checked' : '' %>>
+            <label for="active">Active (users can redeem this reward)</label>
+          </div>
+          <div class="help-text">Inactive rewards are hidden from users</div>
+        </div>
+        
+        <div class="form-actions">
+          <a href="/admin/rewards" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn">Update Reward</button>
+          <form method="POST" action="/admin/rewards/<%= reward.RewardID %>?_method=DELETE" style="display: inline;" 
+                onsubmit="return confirm('Are you sure you want to delete this reward? This action cannot be undone.')">
+            <button type="submit" class="btn btn-danger">Delete Reward</button>
+          </form>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const nameInput = document.getElementById('name');
+      const descriptionInput = document.getElementById('description');
+      const costInput = document.getElementById('cost');
+      const activeInput = document.getElementById('active');
+      
+      const previewName = document.getElementById('preview-name');
+      const previewDescription = document.getElementById('preview-description');
+      const previewCost = document.getElementById('preview-cost');
+      const previewStatus = document.getElementById('preview-status');
+      
+      // Update preview in real-time
+      function updatePreview() {
+        previewName.textContent = nameInput.value || 'Reward Name';
+        previewDescription.textContent = descriptionInput.value || 'Reward description will appear here';
+        previewCost.textContent = `🪙 ${costInput.value || 0} tokens`;
+        
+        const isActive = activeInput.checked;
+        previewStatus.textContent = isActive ? 'Active' : 'Inactive';
+        previewStatus.className = `preview-status ${isActive ? 'status-active' : 'status-inactive'}`;
+      }
+      
+      nameInput.addEventListener('input', updatePreview);
+      descriptionInput.addEventListener('input', updatePreview);
+      costInput.addEventListener('input', updatePreview);
+      activeInput.addEventListener('change', updatePreview);
+      
+      // Form validation
+      document.querySelector('form').addEventListener('submit', function(e) {
+        const name = nameInput.value.trim();
+        const description = descriptionInput.value.trim();
+        const cost = parseInt(costInput.value);
+        
+        if (!name || !description || !cost || cost < 1) {
+          e.preventDefault();
+          alert('Please fill in all required fields with valid values.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

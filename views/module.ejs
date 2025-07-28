@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= module.title %> | Learning Module</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/module.css">
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <%- include('partials/navbar.ejs') %>
+    <% if (user) { %>
+    <div id="coin-bar" style="background:#fffbe6;padding:10px 0;text-align:center;font-family:'Silkscreen',monospace;font-size:1.1rem;color:#e8b84d;box-shadow:0 2px 8px rgba(232,184,77,0.08);">
+      <span id="coin-count">🪙 Coins: <span id="coin-value"><%= user.tokens || 0 %></span></span>
+    </div>
+    <% } %>
+  </header>
+  
+  <div class="module-layout">
+    <aside class="sidebar">
+      <div class="module-title"><%= module.title %></div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: <%= progress %>%;"></div>
+        </div>
+        <div class="progress-label"><%= progress %>% Complete</div>
+      </div>
+      
+      <ul class="quests-list">
+        <% module.chapters.forEach((chapter, index) => { %>
+          <li class="quest-item <%= chapter.id == currentChapterId ? 'active' : '' %>">
+            <a href="/education/modules/<%= module.id %>?chapter=<%= chapter.id %>">
+              <%= chapter.title %>
+            </a>
+            <% if (chapter.completed) { %>
+              <span class="badge" title="Completed!">🏅</span>
+            <% } %>
+          </li>
+        <% }) %>
+      </ul>
+    </aside>
+    
+    <main class="quest-content">
+      <h2><%= currentChapter.title %></h2>
+      <div class="quest-material">
+        <%- currentChapter.content %>
+      </div>
+      
+      <% if (user) { %>
+        <% if (currentChapter.quiz && currentChapter.quiz.length > 0) { %>
+          <div id="quiz-section" style="margin-top: 40px;">
+            <h3>Chapter Quiz - Drag & Drop</h3>
+            <p style="margin-bottom: 20px; color: #666;">Drag each statement to the correct box: True or False</p>
+            
+            <div id="quiz-area">
+              <!-- Current Question Display -->
+              <div id="current-question" style="text-align: center; margin: 20px 0;">
+                <span id="question-counter">Question 1 of <%= currentChapter.quiz.length %></span>
+              </div>
+              
+              <!-- Statement to Drag -->
+              <div id="statement-container" style="margin: 30px 0; text-align: center;">
+                <div id="draggable-statement" 
+                     draggable="true" 
+                     style="display: inline-block; background: #f8f9fa; border: 2px solid #007bff; border-radius: 10px; padding: 20px; margin: 10px; cursor: grab; max-width: 500px; box-shadow: 0 2px 10px rgba(0,123,255,0.2);">
+                  <span id="statement-text">Loading question...</span>
+                </div>
+              </div>
+              
+              <!-- Drop Zones -->
+              <div id="drop-zones" style="display: flex; justify-content: space-around; margin: 40px 0;">
+                <div id="true-zone" 
+                     class="drop-zone" 
+                     data-answer="true"
+                     style="width: 200px; height: 150px; border: 3px dashed #28a745; border-radius: 15px; display: flex; align-items: center; justify-content: center; background: rgba(40, 167, 69, 0.1); color: #28a745; font-size: 1.5rem; font-weight: bold; transition: all 0.3s ease;">
+                  <div style="text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">✓</div>
+                    <div>TRUE</div>
+                  </div>
+                </div>
+                
+                <div id="false-zone" 
+                     class="drop-zone" 
+                     data-answer="false"
+                     style="width: 200px; height: 150px; border: 3px dashed #dc3545; border-radius: 15px; display: flex; align-items: center; justify-content: center; background: rgba(220, 53, 69, 0.1); color: #dc3545; font-size: 1.5rem; font-weight: bold; transition: all 0.3s ease;">
+                  <div style="text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">✗</div>
+                    <div>FALSE</div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Quiz Controls -->
+              <div class="quiz-controls" style="margin-top: 30px; text-align: center;">
+                <button id="reset-question" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">Retry</button>
+                <button id="next-question" style="display: none; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">Next Question</button>
+                <button id="submit-quiz" style="display: none; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Submit Quiz</button>
+              </div>
+              
+              <!-- Feedback Display -->
+              <div id="question-feedback" style="margin-top: 20px; padding: 15px; border-radius: 10px; display: none; text-align: center;"></div>
+              
+              <!-- Quiz Result -->
+              <div id="quiz-result" style="margin-top: 20px; display: none;"></div>
+            </div>
+            
+            <!-- Hidden question data for JavaScript -->
+            <div style="display: none;">
+              <% currentChapter.quiz.forEach((question, index) => { %>
+                <div class="quiz-question-data" 
+                     data-question="<%= question.Question || question.question %>" 
+                     data-answer="<%= question.Answer || question.answer %>"></div>
+              <% }); %>
+            </div>
+          </div>
+        <% } else { %>
+          <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: center;">
+            <p>No quiz available for this chapter.</p>
+            <% if (!currentChapter.completed) { %>
+              <button id="mark-completed" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">Mark as Completed</button>
+            <% } %>
+          </div>
+        <% } %>
+        
+        <!-- Navigation buttons -->
+        <div class="chapter-navigation" style="margin-top: 30px; text-align: center;">
+          <% 
+            const currentIndex = module.chapters.findIndex(c => c.id === currentChapterId);
+            const prevChapter = currentIndex > 0 ? module.chapters[currentIndex - 1] : null;
+            const nextChapter = currentIndex < module.chapters.length - 1 ? module.chapters[currentIndex + 1] : null;
+          %>
+          
+          <% if (prevChapter) { %>
+            <a href="/education/modules/<%= module.id %>?chapter=<%= prevChapter.id %>" 
+               style="background: #6c757d; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-right: 15px; display: inline-block;">
+              ← Previous: <%= prevChapter.title %>
+            </a>
+          <% } %>
+          
+          <% if (nextChapter) { %>
+            <a href="/education/modules/<%= module.id %>?chapter=<%= nextChapter.id %>" 
+               id="next-chapter-btn"
+               style="background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-left: 15px; display: inline-block;">
+              Next: <%= nextChapter.title %> →
+            </a>
+          <% } %>
+        </div>
+        
+      <% } else { %>
+        <div class="login-required" style="margin-top: 40px; padding: 30px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 10px; text-align: center;">
+          <h3>🔐 Login Required</h3>
+          <p>To take quizzes, earn tokens, and track your progress, please log in first.</p>
+          <a href="/login" style="background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%); color: white; padding: 15px 30px; border: none; border-radius: 10px; text-decoration: none; font-family: 'Silkscreen', monospace; display: inline-block; margin-top: 15px;">Login to Continue</a>
+        </div>
+      <% } %>
+      
+      <script>
+        <% if (user && currentChapter.quiz && currentChapter.quiz.length > 0) { %>
+        // Simple quiz initialization
+        let currentQuestionIndex = 0;
+        const totalQuestions = <%= currentChapter.quiz.length %>;
+        const userAnswers = {};
+        
+        // Initialize quiz when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+          if (totalQuestions > 0) {
+            loadQuestion(0);
+            setupDragAndDrop();
+          }
+        });
+        
+        function loadQuestion(index) {
+          // Get question data from server-side template
+          const questionElements = document.querySelectorAll('.quiz-question-data');
+          
+          if (questionElements[index]) {
+            const questionText = questionElements[index].getAttribute('data-question');
+            document.getElementById('statement-text').textContent = questionText;
+            document.getElementById('question-counter').textContent = `Question ${index + 1} of ${totalQuestions}`;
+            resetStatement();
+          }
+        }
+        
+        function resetStatement() {
+          const statement = document.getElementById('draggable-statement');
+          const container = document.getElementById('statement-container');
+          
+          if (statement && container) {
+            statement.style.background = '#f8f9fa';
+            statement.style.border = '2px solid #007bff';
+            statement.style.transform = '';
+            statement.style.position = '';
+            statement.style.cursor = 'grab';
+            statement.style.display = 'inline-block'; // Make sure statement is visible again
+            statement.classList.remove('fade-out'); // Remove fade-out animation class
+            
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+              zone.style.background = zone.dataset.answer === 'true' ? 
+                'rgba(40, 167, 69, 0.1)' : 'rgba(220, 53, 69, 0.1)';
+              zone.style.border = zone.dataset.answer === 'true' ? 
+                '3px dashed #28a745' : '3px dashed #dc3545';
+            });
+            
+            document.getElementById('question-feedback').style.display = 'none';
+            document.getElementById('next-question').style.display = 'none';
+            document.getElementById('submit-quiz').style.display = 'none';
+            
+            container.appendChild(statement);
+          }
+        }
+        
+        function setupDragAndDrop() {
+          const statement = document.getElementById('draggable-statement');
+          const dropZones = document.querySelectorAll('.drop-zone');
+          
+          if (!statement || !dropZones.length) return;
+          
+          statement.addEventListener('dragstart', function(e) {
+            this.style.opacity = '0.5';
+            e.dataTransfer.setData('text/plain', '');
+          });
+          
+          statement.addEventListener('dragend', function(e) {
+            this.style.opacity = '1';
+          });
+          
+          dropZones.forEach(zone => {
+            zone.addEventListener('dragover', function(e) {
+              e.preventDefault();
+              this.style.background = this.dataset.answer === 'true' ? 
+                'rgba(40, 167, 69, 0.3)' : 'rgba(220, 53, 69, 0.3)';
+            });
+            
+            zone.addEventListener('dragleave', function(e) {
+              this.style.background = this.dataset.answer === 'true' ? 
+                'rgba(40, 167, 69, 0.1)' : 'rgba(220, 53, 69, 0.1)';
+            });
+            
+            zone.addEventListener('drop', function(e) {
+              e.preventDefault();
+              handleDrop(this);
+            });
+          });
+          
+          // Navigation buttons
+          const nextBtn = document.getElementById('next-question');
+          const resetBtn = document.getElementById('reset-question');
+          const submitBtn = document.getElementById('submit-quiz');
+          
+          if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+              if (currentQuestionIndex < totalQuestions - 1) {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+              }
+            });
+          }
+          
+          if (resetBtn) {
+            resetBtn.addEventListener('click', resetStatement);
+          }
+          
+          if (submitBtn) {
+            submitBtn.addEventListener('click', function() {
+              // Check if all questions are answered
+              const unansweredQuestions = [];
+              for (let i = 0; i < totalQuestions; i++) {
+                if (userAnswers[i] === undefined) {
+                  unansweredQuestions.push(i + 1);
+                }
+              }
+              
+              if (unansweredQuestions.length > 0) {
+                alert(`Please answer all questions. Missing: Question ${unansweredQuestions.join(', ')}`);
+                return;
+              }
+              
+              // Convert answers to array format expected by backend
+              const answersArray = [];
+              for (let i = 0; i < totalQuestions; i++) {
+                answersArray[i] = userAnswers[i];
+              }
+              
+              // Submit quiz
+              fetch(`/education/modules/<%= module.id %>/chapters/<%= currentChapterId %>/quiz`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ answers: answersArray })
+              })
+              .then(response => response.json())
+              .then(data => {
+                const resultDiv = document.getElementById('quiz-result');
+                resultDiv.style.display = 'block';
+                
+                if (data.success) {
+                  resultDiv.innerHTML = `
+                    <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 20px; border-radius: 8px;">
+                      <h4>🎉 Congratulations!</h4>
+                      <p>${data.message}</p>
+                      <p><strong>Score:</strong> ${data.score}%</p>
+                      <p><strong>Tokens Earned:</strong> ${data.tokensEarned}</p>
+                      ${data.moduleCompleted ? '<p><strong>🏆 Module Completed!</strong></p>' : ''}
+                    </div>
+                  `;
+                  
+                  // Update coin display
+                  const coinValue = document.getElementById('coin-value');
+                  if (coinValue) {
+                    const currentCoins = parseInt(coinValue.textContent) || 0;
+                    coinValue.textContent = currentCoins + data.tokensEarned;
+                  }
+                  
+                  // Refresh page after a delay to show updated progress and badge
+                  setTimeout(() => {
+                    location.reload();
+                  }, 3000);
+                } else {
+                  resultDiv.innerHTML = `
+                    <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 20px; border-radius: 8px;">
+                      <h4>😔 Try Again</h4>
+                      <p>${data.message}</p>
+                      <p><strong>Score:</strong> ${data.score}%</p>
+                      <button onclick="location.reload()" style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">Retry Quiz</button>
+                    </div>
+                  `;
+                }
+                
+                // Hide quiz controls
+                document.querySelector('.quiz-controls').style.display = 'none';
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting quiz. Please try again.');
+              });
+            });
+          }
+        }
+        
+        function handleDrop(dropZone) {
+          const statement = document.getElementById('draggable-statement');
+          const questionElements = document.querySelectorAll('.quiz-question-data');
+          
+          if (questionElements[currentQuestionIndex]) {
+            const correctAnswer = questionElements[currentQuestionIndex].getAttribute('data-answer') === '1';
+            const userAnswer = dropZone.dataset.answer === 'true';
+            const isCorrect = userAnswer === correctAnswer;
+            
+            userAnswers[currentQuestionIndex] = userAnswer;
+            
+            // Add fade-out animation class
+            statement.classList.add('fade-out');
+            
+            // Hide the statement after animation completes
+            setTimeout(() => {
+              statement.style.display = 'none';
+            }, 300); // Match the CSS transition duration
+            
+            const feedback = document.getElementById('question-feedback');
+            feedback.style.display = 'block';
+            
+            if (isCorrect) {
+              feedback.style.background = 'rgba(40, 167, 69, 0.1)';
+              feedback.style.border = '1px solid #28a745';
+              feedback.style.color = '#155724';
+              feedback.innerHTML = '<strong>Correct!</strong> 🎉';
+            } else {
+              feedback.style.background = 'rgba(220, 53, 69, 0.1)';
+              feedback.style.border = '1px solid #dc3545';
+              feedback.style.color = '#721c24';
+              feedback.innerHTML = '<strong>Incorrect.</strong> The correct answer is ' + (correctAnswer ? 'True' : 'False') + '.';
+            }
+            
+            // Show next button or submit button
+            if (currentQuestionIndex < totalQuestions - 1) {
+              document.getElementById('next-question').style.display = 'inline-block';
+            } else {
+              document.getElementById('submit-quiz').style.display = 'inline-block';
+            }
+          }
+        }
+        <% } %>
+        
+        // Handle mark as completed for chapters without quiz
+        const markCompletedBtn = document.getElementById('mark-completed');
+        if (markCompletedBtn) {
+          markCompletedBtn.addEventListener('click', function() {
+            fetch(`/education/modules/<%= module.id %>/chapters/<%= currentChapterId %>/complete`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                // Update coin display
+                const coinValue = document.getElementById('coin-value');
+                if (coinValue) {
+                  const currentCoins = parseInt(coinValue.textContent) || 0;
+                  coinValue.textContent = currentCoins + data.tokensEarned;
+                }
+                
+                // Show success message
+                markCompletedBtn.style.display = 'none';
+                markCompletedBtn.parentNode.innerHTML += `
+                  <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <p>✅ ${data.message}</p>
+                  </div>
+                `;
+                
+                // Refresh page after a delay to show updated progress
+                setTimeout(() => {
+                  location.reload();
+                }, 2000);
+              } else {
+                alert('Error: ' + data.error);
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('Error marking chapter as completed. Please try again.');
+            });
+          });
+        }
+      </script>
+    </main>
+  </div>
+</body>
+</html>

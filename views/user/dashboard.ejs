@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard | +Pulse</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Silkscreen';
+            background-color: white;
+            color: black;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(240, 67, 5, 0.2);
+        }
+        
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        .welcome-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .profile-pic-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .coins-number {
+            color: #ff2c58;
+        }
+
+        .modules-number {
+            color: #ff6b35;
+        }
+
+        .progress-number {
+            color: #6a93f8;
+        }
+
+        .achievements-number {
+            color: #43e97b;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .section-title {
+            color: #ff2c58;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .module-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .module-title {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar-container {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #ff2c58, #ff6b35);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .rewards-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .reward-preview-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .reward-preview-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .reward-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .reward-cost {
+            color: #ff2c58;
+            font-weight: bold;
+        }
+
+        .achievement-badge {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #333;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        .btn-pulse {
+            background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: 'Silkscreen';
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .btn-pulse:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .module-card a {
+            transition: color 0.2s ease;
+        }
+
+        .module-card a:hover {
+            color: #ff2c58 !important;
+        }
+
+        .chapter-progress-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #ff2c58;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .progress-status {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-not-started {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+
+    <div class="dashboard-container">
+        <!-- Welcome Header -->
+        <div class="dashboard-header">
+            <div class="welcome-section">
+                <img src="<%= user.profilePicUrl %>" alt="Profile" class="profile-pic-large">
+                <div>
+                    <h1>Welcome back, <%= user.username %>! 👋</h1>
+                    <p style="margin: 0; opacity: 0.9;">Continue your learning journey</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number coins-number">🪙 <%= stats.tokens %></div>
+                <div class="stat-label">Tokens Earned</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number modules-number">📚 <%= stats.completedModules %>/<%= stats.totalModules %></div>
+                <div class="stat-label">Modules Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number progress-number"><%= stats.completionRate %>%</div>
+                <div class="stat-label">Overall Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number achievements-number">📖 <%= stats.completedChapters %>/<%= stats.totalChapters %></div>
+                <div class="stat-label">Chapters Completed</div>
+            </div>
+        </div>
+
+        <!-- Module Progress -->
+        <h2 class="section-title">📚 Your Module Progress</h2>
+        <% if (modules.length === 0) { %>
+        <div class="empty-state">
+            <div class="empty-state-icon">📚</div>
+            <h3>No modules available yet</h3>
+            <p>Check back later for new learning content!</p>
+        </div>
+        <% } else { %>
+        <div class="modules-grid">
+            <% modules.forEach(module => { %>
+            <div class="module-card">
+                <h3 class="module-title">
+                    <a href="/education/modules/<%= module.id %>" style="text-decoration: none; color: inherit;">
+                        <%= module.title %>
+                    </a>
+                </h3>
+                <p style="color: #666; margin-bottom: 15px;"><%= module.description %></p>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: <%= module.progress.score %>%"></div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="color: #666;">
+                        Progress: <%= module.progress.score %>%
+                    </span>
+                    <% if (module.progress.completed) { %>
+                        <span class="achievement-badge">✅ Completed</span>
+                    <% } else if (module.progress.score > 0) { %>
+                        <span style="color: #ff6b35; font-weight: bold;">🔄 In Progress</span>
+                    <% } else { %>
+                        <span style="color: #999;">⏳ Not Started</span>
+                    <% } %>
+                </div>
+
+                <% if (module.questCompletion && module.questCompletion.total > 0) { %>
+                <div style="margin-top: 10px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #ff2c58;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <small style="color: #333; font-weight: bold;">
+                            📚 Chapters: <%= module.questCompletion.completed %>/<%= module.questCompletion.total %>
+                        </small>
+                        <small style="color: #666;">
+                            (<%= Math.round((module.questCompletion.completed / module.questCompletion.total) * 100) %>%)
+                        </small>
+                    </div>
+                    
+                    <!-- Chapter progress bar -->
+                    <div style="background: #e9ecef; border-radius: 6px; height: 6px; margin-top: 8px; overflow: hidden;">
+                        <div style="height: 100%; background: linear-gradient(to right, #43e97b, #38d9a9); border-radius: 6px; width: <%= Math.round((module.questCompletion.completed / module.questCompletion.total) * 100) %>%; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+                <% } %>
+                
+                <div style="margin-top: 15px; text-align: center;">
+                    <% if (module.progress.completed) { %>
+                        <a href="/education/modules/<%= module.id %>" class="btn-pulse" style="font-size: 0.9rem; padding: 8px 16px;">
+                            📖 Review Module
+                        </a>
+                    <% } else if (module.progress.score > 0) { %>
+                        <a href="/education/modules/<%= module.id %>" class="btn-pulse" style="font-size: 0.9rem; padding: 8px 16px;">
+                            🚀 Continue Learning
+                        </a>
+                    <% } else { %>
+                        <a href="/education/modules/<%= module.id %>" class="btn-pulse" style="font-size: 0.9rem; padding: 8px 16px;">
+                            🎯 Start Module
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+            <% }); %>
+        </div>
+        <% } %>
+
+        <!-- Recent Activity -->
+        <% if (recentActivity && recentActivity.length > 0) { %>
+        <h2 class="section-title">📈 Recent Activity</h2>
+        <div style="margin-bottom: 30px; text-align: center;">
+            <% recentActivity.forEach(activity => { %>
+            <div class="achievement-badge">
+                📝 <%= activity.message %>
+            </div>
+            <% }); %>
+        </div>
+        <% } %>
+
+        <!-- Rewards Preview -->
+        <h2 class="section-title">🎁 Available Rewards</h2>
+        <div class="empty-state">
+            <div class="empty-state-icon">🎁</div>
+            <h3>Rewards Coming Soon!</h3>
+            <p>Complete modules to unlock exciting rewards!</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/user/rewards" class="btn-pulse">View All Rewards</a>
+        </div>
+    </div>
+
+</body>
+</html>

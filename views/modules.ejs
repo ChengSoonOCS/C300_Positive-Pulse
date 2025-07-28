@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Education Modules</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/modules.css">
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <%- include('partials/navbar.ejs') %>
+  </header>
+
+  <main>
+    <% if (user) { %>
+      <div id="coin-bar"
+           style="background:#fffbe6;padding:10px 0;
+                  text-align:center;font-family:'Silkscreen',monospace;
+                  font-size:1.1rem;color:#e8b84d;
+                  box-shadow:0 2px 8px rgba(232,184,77,0.08);">
+        <span id="coin-count">
+          🪙 Coins: <span id="coin-value"><%= user.tokens || 0 %></span>
+        </span>
+      </div>
+    <% } %>
+
+    <div class="modules-container">
+      <div class="page-header">
+        <h1>📚 Education Modules</h1>
+        <p>Master financial concepts through interactive learning modules!</p>
+      </div>
+      <div class="modules-list">
+        <% modules.forEach(module => { %>
+          <div class="module-card">
+            <div class="module-title"><%= module.title %></div>
+            <div class="module-desc"><%= module.description %></div>
+            <a href="/education/modules/<%= module.id %>" class="start-btn">Start Module</a>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

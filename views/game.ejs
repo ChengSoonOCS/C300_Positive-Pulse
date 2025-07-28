@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Game | +Pulse</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Silkscreen', monospace;
+            background: #f6f7fb;
+        }
+        
+        .game-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(240, 67, 5, 0.2);
+        }
+        
+        .page-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        
+        .coming-soon {
+            text-align: center;
+            padding: 60px 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .game-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .game-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            border-color: #ff2c58;
+        }
+        
+        .game-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .game-title {
+            font-size: 1.5rem;
+            color: #ff2c58;
+            margin-bottom: 15px;
+        }
+        
+        .game-description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .play-button {
+            background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Silkscreen', monospace;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .available .play-button {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .available .play-button:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/navbar') %>
+    
+    <% if (user) { %>
+    <div id="coin-bar" style="background:#fffbe6;padding:10px 0;text-align:center;font-family:'Silkscreen',monospace;font-size:1.1rem;color:#e8b84d;box-shadow:0 2px 8px rgba(232,184,77,0.08);">
+      <span id="coin-count">🪙 Coins: <span id="coin-value"><%= user.tokens || 0 %></span></span>
+    </div>
+    <% } %>
+    
+    <div class="game-container">
+        <div class="page-header">
+            <h1>🎮 Financial Learning Games</h1>
+            <p>Learn financial concepts through interactive games and simulations!</p>
+        </div>
+        
+        <div class="coming-soon">
+            <h2>🚧 Coming Soon!</h2>
+            <p>We're developing exciting financial games to make learning fun and engaging.</p>
+            <p>In the meantime, check out our interactive learning modules!</p>
+            <a href="/education/modules" style="background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%); color: white; padding: 15px 30px; border: none; border-radius: 10px; font-family: 'Silkscreen', monospace; text-decoration: none; display: inline-block; margin-top: 20px;">
+                Start Learning
+            </a>
+        </div>
+        
+        <div class="game-preview">
+            <div class="game-card">
+                <div class="game-icon">💰</div>
+                <div class="game-title">Budget Master</div>
+                <div class="game-description">
+                    Master the art of budgeting by managing virtual finances and making smart spending decisions.
+                </div>
+                <button class="play-button">Coming Soon</button>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-icon">📈</div>
+                <div class="game-title">Investment Simulator</div>
+                <div class="game-description">
+                    Practice investment strategies in a risk-free environment with real market scenarios.
+                </div>
+                <button class="play-button">Coming Soon</button>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-icon">🏦</div>
+                <div class="game-title">Insurance Detective</div>
+                <div class="game-description">
+                    Solve insurance puzzles and learn about different coverage options through interactive scenarios.
+                </div>
+                <button class="play-button">Coming Soon</button>
+            </div>
+            
+            <div class="game-card available">
+                <div class="game-icon">🧠</div>
+                <div class="game-title">Quiz Challenge</div>
+                <div class="game-description">
+                    Test your financial knowledge with our module quizzes and earn tokens for correct answers!
+                </div>
+                <a href="/education/modules" class="play-button">Play Now</a>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+            <h3>💡 Suggestion Box</h3>
+            <p>Have ideas for financial games? We'd love to hear from you!</p>
+            <p>Email us: games@pulse.edu</p>
+        </div>
+    </div>
+
+<% if (user) { %>
+<script>
+  // Coin bar logic for game page
+  const coinsKey = 'user-coins';
+  function updateCoinBar() {
+    const coinValueElement = document.getElementById('coin-value');
+    if (coinValueElement) {
+      coinValueElement.textContent = localStorage.getItem(coinsKey) || 0;
+    }
+  }
+  document.addEventListener('DOMContentLoaded', updateCoinBar);
+</script>
+<% } %>
+</body>
+</html>

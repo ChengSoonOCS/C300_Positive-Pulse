@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards Store | +Pulse</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Silkscreen', monospace;
+            background: #f6f7fb;
+        }
+        
+        .rewards-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(240, 67, 5, 0.2);
+        }
+        
+        .page-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        
+        .user-info {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .token-balance {
+            font-size: 1.2rem;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        
+        .admin-controls {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .admin-button {
+            background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Silkscreen', monospace;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .admin-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .login-prompt {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .reward-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
+        }
+        
+        .reward-card:hover {
+            transform: translateY(-5px);
+            border-color: #ff2c58;
+        }
+        
+        .reward-card.redeemed {
+            border-color: #4caf50;
+            background: #f8fff8;
+        }
+        
+        .reward-card.insufficient-tokens {
+            border-color: #ccc;
+            background: #f5f5f5;
+        }
+        
+        .reward-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .reward-name {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .reward-description {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .reward-cost {
+            background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        
+        .reward-quantity {
+            color: #666;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+        
+        .redeem-button {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Silkscreen', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .redeem-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .redeem-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .redeemed-badge {
+            background: #4caf50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        
+        .login-button {
+            background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Silkscreen', monospace;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .alert.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/navbar') %>
+    
+
+    
+    <div class="rewards-container">
+        <div class="page-header">
+            <h1>🎁 Rewards Store</h1>
+            <p>Earn tokens by completing learning modules and redeem exciting rewards!</p>
+        </div>
+        
+        <div id="alert" class="alert"></div>
+        
+        <% if (user) { %>
+            <div class="user-info">
+                <div>
+                    <span>Welcome, <%= user.username %>!</span>
+                </div>
+                <div class="token-balance">
+                    🪙 <%= userTokens %> tokens
+                </div>
+            </div>
+            
+            <% if (isAdmin) { %>
+                <div class="admin-controls">
+                    <h3>👨‍💼 Admin Controls</h3>
+                    <a href="/admin/rewards" class="admin-button">Manage Rewards</a>
+                    <a href="/admin/rewards/new" class="admin-button">Add New Reward</a>
+                </div>
+            <% } %>
+        <% } else { %>
+            <div class="login-prompt">
+                <h3>🔐 Login Required for Redemption</h3>
+                <p>You can browse rewards as a guest, but you need to log in to earn tokens and redeem rewards.</p>
+                <a href="/login" class="login-button">Login to Continue</a>
+            </div>
+        <% } %>
+        
+        <div class="rewards-grid">
+            <% if (rewards.length === 0) { %>
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                    <h3>No rewards available at the moment</h3>
+                    <p>Check back later for exciting rewards!</p>
+                </div>
+            <% } else { %>
+                <% rewards.forEach(reward => { %>
+                    <div class="reward-card <%= reward.alreadyRedeemed ? 'redeemed' : '' %> <%= user && !reward.canRedeem && !reward.alreadyRedeemed ? 'insufficient-tokens' : '' %>">
+                        <% if (reward.alreadyRedeemed) { %>
+                            <div class="redeemed-badge">✓ Redeemed</div>
+                        <% } %>
+                        
+                        <div class="reward-icon">
+                            <% 
+                            let icon = '🎁';
+                            switch(reward.RewardName) {
+                                case 'Coffee Voucher': icon = '☕'; break;
+                                case 'Lunch Voucher': icon = '🍽️'; break;
+                                case 'Bookstore Credit': icon = '📚'; break;
+                                case 'Parking Pass': icon = '🅿️'; break;
+                                case 'Study Room Access': icon = '📖'; break;
+                                case 'Late Library Access': icon = '🏛️'; break;
+                                default: icon = '🎁'; break;
+                            }
+                            %>
+                            <%= icon %>
+                        </div>
+                        
+                        <div class="reward-name"><%= reward.RewardName %></div>
+                        <div class="reward-description"><%= reward.Description %></div>
+                        <div class="reward-cost">🪙 <%= reward.TokenCost %> tokens</div>
+                        
+                        <% if (reward.QuantityAvailable > 0) { %>
+                            <div class="reward-quantity">
+                                <%= reward.QuantityAvailable %> remaining
+                            </div>
+                        <% } %>
+                        
+                        <% if (user) { %>
+                            <% if (reward.alreadyRedeemed) { %>
+                                <button class="redeem-button" disabled>Already Redeemed</button>
+                            <% } else if (reward.canRedeem) { %>
+                                <button class="redeem-button" onclick="redeemReward(<%= reward.RewardID %>, '<%= reward.RewardName.replace(/'/g, "\\'").replace(/"/g, '\\"') %>', <%= reward.TokenCost %>)">
+                                    Redeem Now
+                                </button>
+                            <% } else { %>
+                                <button class="redeem-button" disabled>Insufficient Tokens</button>
+                            <% } %>
+                        <% } else { %>
+                            <button class="redeem-button" onclick="window.location.href='/login'">
+                                Login to Redeem
+                            </button>
+                        <% } %>
+                    </div>
+                <% }) %>
+            <% } %>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+            <h3>📚 Start Learning to Earn More Tokens!</h3>
+            <p>Complete educational modules to earn tokens and unlock these rewards</p>
+            <a href="/education/modules" class="login-button">Browse Modules</a>
+        </div>
+    </div>
+    
+    <script>
+        function redeemReward(rewardId, rewardName, tokenCost) {
+            if (confirm(`Are you sure you want to redeem "${rewardName}" for ${tokenCost} tokens?`)) {
+                fetch(`/rewards/${rewardId}/redeem`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const alert = document.getElementById('alert');
+                    if (data.success) {
+                        alert.className = 'alert success';
+                        alert.textContent = data.message;
+                        alert.style.display = 'block';
+                        
+                        // Refresh the page after a short delay
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        alert.className = 'alert error';
+                        alert.textContent = data.error || 'Redemption failed';
+                        alert.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const alert = document.getElementById('alert');
+                    alert.className = 'alert error';
+                    alert.textContent = 'An error occurred during redemption';
+                    alert.style.display = 'block';
+                });
+            }
+        }
+    </script>
+
+    <% if (user) { %>
+    <script>
+        // Coin bar logic for rewards page
+        const coinsKey = 'user-coins';
+        function updateCoinBar() {
+            const coinValueElement = document.getElementById('coin-value');
+            if (coinValueElement) {
+                coinValueElement.textContent = localStorage.getItem(coinsKey) || 0;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', updateCoinBar);
+    </script>
+    <% } %>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>+Pulse AI Chat</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #ff2c58;
+      --primary-light: #ff4570;
+      --primary-dark: #e61e4a;
+      --secondary-color: #ff758f;
+      --accent-color: #ffa8b6;
+      --background-light: #fff5f7;
+      --background-white: #ffffff;
+      --text-dark: #2d1b69;
+      --text-light: #666666;
+      --border-color: #ffd6dd;
+      --shadow-primary: rgba(255, 44, 88, 0.2);
+      --shadow-light: rgba(255, 44, 88, 0.1);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Silkscreen';
+      background: linear-gradient(135deg, var(--background-light) 0%, var(--background-white) 100%);
+      color: var(--text-dark);
+    }
+
+    .container {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+
+    .chat-container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      background: var(--background-white);
+      border-radius: 24px;
+      box-shadow: 0 10px 40px var(--shadow-primary);
+      border: 2px solid var(--border-color);
+      height: calc(100vh - 140px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+      color: #fff;
+      padding: 2rem 1.5rem 1rem 1.5rem;
+      font-size: 1.7rem;
+      font-weight: 800;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      flex-shrink: 0;
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 4px 20px var(--shadow-light);
+      position: relative;
+    }
+
+    .chat-header .robot-icon {
+      font-size: 1.5em;
+      margin-right: 0.5em;
+      vertical-align: middle;
+      animation: robotBounce 2s infinite;
+    }
+
+    .chat-header #refresh-chat {
+      position: absolute;
+      right: 1.5rem;
+      top: 1.5rem;
+      background: rgba(255, 255, 255, 0.18);
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.4rem 1rem;
+      font-size: 1rem;
+      transition: background 0.2s;
+      box-shadow: 0 1px 4px rgba(232, 77, 112, 0.10);
+    }
+
+    .chat-header #refresh-chat:hover {
+      background: rgba(255, 255, 255, 0.35);
+      color: #e84d70;
+    }
+
+    .chat-subtitle {
+      color: #fff;
+      background: linear-gradient(135deg, #e84d70 0%, #a46fdb 100%);
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 400;
+      padding-bottom: 1.2rem;
+      border-radius: 0 0 28px 28px;
+      margin-bottom: 0;
+      box-shadow: 0 1px 8px rgba(164, 111, 219, 0.08);
+    }
+
+    .chat-instructions {
+      text-align: center;
+      color: #a46fdb;
+      font-size: 1.08rem;
+      margin: 1.2rem 0 0.7rem 0;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+    }
+
+    flowise-fullchatbot {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 0 0 32px 32px;
+      z-index: 1;
+    }
+
+    /* Custom scrollbar for chat container */
+    .chat-body::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    .chat-body::-webkit-scrollbar-thumb {
+      background: #e84d70;
+      border-radius: 8px;
+    }
+
+    .chat-body::-webkit-scrollbar-track {
+      background: #f7f8ff;
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .chat-container {
+        max-width: 98vw;
+        border-radius: 18px;
+        height: auto;
+      }
+
+      .chat-header,
+      .chat-subtitle {
+        border-radius: 18px 18px 0 0;
+        font-size: 1.1rem;
+        padding: 1.2rem 0.7rem 0.7rem 0.7rem;
+      }
+
+      .chat-body {
+        border-radius: 0 0 18px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('partials/navbar.ejs') %>
+    <div class="container">
+      <div class="chat-container">
+        <div class="chat-header">
+          +Pulse AI Insurance Game
+          <button id="refresh-chat" class="btn btn-light btn-sm ms-3">
+            Refresh</button>
+        </div>
+        <div class="chat-subtitle">
+          Test your insurance knowledge! Ask the AI a question or answer its questions to play.
+        </div>
+        <div class="chat-instructions">
+          Type your question below or respond to the AI to continue the game.
+        </div>
+        <div class="chat-body">
+          <flowise-fullchatbot></flowise-fullchatbot>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js" type="module"></script>
+    <script type="module">
+      import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
+      function generateSessionId() {
+        return 'session_' + Math.random().toString(36).substr(2, 9)
+      }
+      let sessionId = generateSessionId();
+      window.flowiseSessionId = sessionId;
+      Chatbot.initFull({
+        chatflowid: "42040f2c-f3f4-4954-9599-2dcd9162b5a5",
+        apiHost: "https://cloud.flowiseai.com",
+        chatflowConfig: {
+          sessionId: sessionId
+        },
+        theme: {
+          chatWindow: {
+            backgroundColor: "#ffffff",
+            height: "100%",
+            width: "100%",
+            fontSize: 16,
+            showTitle: false,
+            poweredByTextColor: "#303235",
+            clearChatOnReload: true,
+            welcomeMessage: "👋 Welcome to the +Pulse AI Insurance Game!\n\nYou're about to dive into two fun and interactive game modes:\n\n **Insurance Agent Game**\nStep into the shoes of an insurance advisor! You'll meet different personas with unique life situations. Your goal is to recommend the most suitable insurance plans for them. Think carefully and explain your choices!\n\n **Insurance Detective Game**\nA persona has been denied an insurance claim. Your job? Investigate and uncover why the claim failed. analyze their coverage, and spot the missing details!\n🔹 To begin, simply type **start** or say **I want to play**. The AI will guide you from there.\n\nGet ready to test your insurance knowledge. Let's play!",
+            botMessage: {
+              backgroundColor: "#f7f8ff",
+              textColor: "#303235",
+              showAvatar: false,
+              avatarSrc: "/images/robot-avatar.png",
+            },
+            userMessage: {
+              backgroundColor: "#a46fdb",
+              textColor: "#fff",
+              showAvatar: false,
+              avatarSrc: "/images/user-avatar.png"
+            },
+            textInput: {
+              placeholder: "Type your question",
+              backgroundColor: "#ffffff",
+              textColor: "#303235",
+              sendButtonColor: "#ff2c58",
+              borderTop: "2px solid #ecc1cb"
+            }
+          },
+          customCSS: `
+        .flowise-full-chat, .chatbot-container {
+          border-radius: 0 0 32px 32px !important;
+          display: flex !important;
+          flex-direction: column !important;
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        .chat-messages-container {
+          flex: 1 1 auto !important;
+          overflow-y: auto !important;
+          padding: 1rem !important;
+          max-height: unset !important;
+          scrollbar-width: thin !important;
+          scrollbar-color: #e84d70 #f7f8ff !important;
+        }
+        .chat-messages-container::-webkit-scrollbar {
+          width: 8px !important;
+        }
+        .chat-messages-container::-webkit-scrollbar-thumb {
+          background: #e84d70 !important;
+          border-radius: 8px !important;
+        }
+        .chat-messages-container::-webkit-scrollbar-track {
+          background: #f7f8ff !important;
+        }
+        .chat-input-container {
+          position: absolute !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          background: white !important;
+          padding: 1rem !important;
+          border-top: 2.5px solid #ecc1cb !important;
+          z-index: 10 !important;
+          border-radius: 0 0 32px 32px !important;
+        }
+      `
+        }
+      })
+      document.getElementById('refresh-chat').onclick = function () {
+        window.location.reload();
+      }
+    </script>
+    <!--%- include('partials/footer') % !-->
+</body>
+
+</html>

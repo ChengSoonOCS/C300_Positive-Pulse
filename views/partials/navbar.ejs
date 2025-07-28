@@ -1,0 +1,179 @@
+<nav class="navbar">
+  <div class="logo">
+    <img src="/logo.png" alt="+pulse logo" />
+    <span>+pulse</span>
+    <% if (user && user.RoleID === 1) { %>
+      <span class="admin-badge">ADMIN</span>
+    <% } %>
+  </div>
+  <ul class="nav-links">
+    <% if (user && user.RoleID === 1) { %>
+      <!-- Admin Navigation -->
+      <li><a href="/admin">DASHBOARD</a></li>
+      <li><a href="/admin/modules">MODULES</a></li>
+      <li><a href="/rewards">REWARDS</a></li>
+    <% } else { %>
+      <!-- User Navigation -->
+      <li><a href="/">HOME</a></li>
+      <li><a href="/education/modules">LEARN</a></li>
+      <li><a href="/ai">AI GAME</a></li>
+      <li><a href="/ai-comparison">COMPARE</a></li>
+      <li><a href="/rewards">REWARDS</a></li>
+    <% } %>
+    
+    <% if (!user) { %>
+      <li><a href="/login">LOGIN</a></li>
+    <% } else { %>
+      <li class="nav-item dropdown">
+        <a href="#" class="profile-toggle">
+          <% 
+            let profileImageUrl = '/images/default-avatar.svg';
+            if (user.profilePicUrl) {
+              profileImageUrl = user.profilePicUrl;
+            } else if (user.image && user.image !== 'default-avatar.svg') {
+              // Handle cases where profilePicUrl isn't set but image field exists
+              if (user.image.startsWith('/images/')) {
+                profileImageUrl = user.image;
+              } else {
+                profileImageUrl = '/images/users/' + user.image;
+              }
+            } else if (user.Image && user.Image !== 'default-avatar.svg') {
+              // Handle cases where Image field exists (capital I)
+              if (user.Image.startsWith('/images/')) {
+                profileImageUrl = user.Image;
+              } else {
+                profileImageUrl = '/images/users/' + user.Image;
+              }
+            }
+          %>
+          <img src="<%= profileImageUrl %>" alt="Profile" class="profile-pic profile-pic-large" onerror="this.src='/images/default-avatar.svg'"/>
+        </a>
+        <ul class="dropdown-menu">
+          <% if (user.RoleID === 1) { %>
+            <!-- Admin dropdown menu -->
+            <li><a href="/profile">My Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a href="/logout">Logout</a></li>
+          <% } else { %>
+            <!-- User dropdown menu -->
+            <li><a href="/user/dashboard">My Dashboard</a></li>
+            <li><a href="/profile">My Profile</a></li>
+            <li><a href="/rewards">Rewards Store</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a href="/logout">Logout</a></li>
+          <% } %>
+        </ul>
+      </li>
+    <% } %>
+  </ul>
+<%/* --- Begin Navbar Styles --- */%>
+<style>
+  .navbar {
+    background: #ff2c58;
+    box-shadow: 0 2px 8px rgba(232,184,77,0.08);
+    padding: 0 32px;
+    min-height: 72px;
+    height: 90px; 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Silkscreen', monospace;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    gap: 10px;
+  }
+  
+  .admin-badge {
+    background: #ff2c58;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+  }
+  .nav-links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  .nav-links li a {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 1.1rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+  .nav-links li a:hover {
+    /* User navigation - no hover animation */
+    background: none;
+    opacity: 1;
+  }
+  
+  /* Admin navigation hover effect */
+  .navbar .nav-links li a:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  .profile-pic.profile-pic-large {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid #e8b84d;
+    object-fit: cover;
+    margin-right: 0;
+    vertical-align: middle;
+    background: #fff;
+  }
+  .nav-item.dropdown {
+    position: relative;
+  }
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 110%;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #e8b84d22;
+    min-width: 140px;
+    z-index: 100;
+    padding: 0;
+    transition: opacity 0.2s;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .nav-item.dropdown:hover .dropdown-menu,
+  .nav-item.dropdown:focus-within .dropdown-menu {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .dropdown-menu li a {
+    display: block;
+    padding: 10px 18px;
+    color: #000;
+    border-radius: 0;
+    font-size: 1rem;
+    background: transparent;
+    transition: none;
+  }
+  .dropdown-menu li a:hover {
+    color: #000;
+    background-color: #f6f7fb;
+  }
+  .dropdown-divider {
+    height: 0;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    border-top: 1px solid #e5e5e5;
+  }
+</style>
+</nav>
+<%/* --- End Navbar Styles --- */%>

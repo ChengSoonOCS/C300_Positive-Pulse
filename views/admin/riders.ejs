@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Riders | Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .page-header h1 {
+      color: #333;
+      margin: 0;
+    }
+    
+    .btn {
+      background: linear-gradient(135deg, #ff2c58 0%, #ff6b35 100%);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-family: 'Silkscreen', monospace;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    }
+    
+    .riders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 20px;
+    }
+    
+    .rider-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.2s;
+      border: 2px solid #e2e8f0;
+    }
+    
+    .rider-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .rider-header {
+      background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+      color: white;
+      padding: 25px 20px;
+      text-align: center;
+    }
+    
+    .rider-icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    
+    .rider-name {
+      font-size: 1.4rem;
+      margin: 0 0 5px 0;
+      font-weight: bold;
+    }
+    
+    .rider-company {
+      font-size: 1rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+    
+    .rider-body {
+      padding: 25px 20px;
+    }
+    
+    .rider-info {
+      margin-bottom: 20px;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    .info-label {
+      font-weight: bold;
+      color: #4a5568;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      width: 35%;
+    }
+    
+    .info-value {
+      color: #2d3748;
+      font-size: 0.9rem;
+      flex-grow: 1;
+      text-align: right;
+    }
+    
+    .plan-count {
+      color: #2196f3;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    
+    .description-section {
+      background: #f7fafc;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #2196f3;
+    }
+    
+    .description-title {
+      font-weight: bold;
+      color: #2d3748;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+    
+    .description-text {
+      color: #4a5568;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    
+    .rider-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      flex: 1;
+      text-align: center;
+      min-width: 80px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+    
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+    
+    .no-description {
+      color: #999;
+      font-style: italic;
+    }
+    
+    @media (max-width: 768px) {
+      .riders-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .page-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+      
+      .rider-actions {
+        flex-direction: column;
+      }
+      
+      .btn-small {
+        flex: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar.ejs') %>
+  
+  <div class="admin-container">
+    <div class="page-header">
+      <h1>🏥 Manage Riders</h1>
+      <a href="/admin/riders/new" class="btn">Create New Rider</a>
+    </div>
+    
+    <% if (riders && riders.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-state-icon">🏥</div>
+        <h2>No riders yet</h2>
+        <p>Create your first rider to get started.</p>
+        <a href="/admin/riders/new" class="btn">Create Rider</a>
+      </div>
+    <% } else if (riders && riders.length > 0) { %>
+      <div class="riders-grid">
+        <% riders.forEach(rider => { %>
+          <div class="rider-card">
+            <div class="rider-header">
+              <div class="rider-icon">🏥</div>
+              <div class="rider-name"><%= rider.Name %></div>
+              <div class="rider-company">
+                <% if (rider.InsuranceCompanyName) { %>
+                  by <%= rider.InsuranceCompanyName %>
+                <% } else { %>
+                  Independent Rider
+                <% } %>
+              </div>
+            </div>
+            <div class="rider-body">
+              <div class="rider-info">
+                <div class="info-row">
+                  <span class="info-label">Rider ID:</span>
+                  <span class="info-value">#<%= rider.RiderID %></span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Plans Using:</span>
+                  <span class="info-value plan-count"><%= rider.planCount %> plan<%= rider.planCount !== 1 ? 's' : '' %></span>
+                </div>
+              </div>
+              
+              <% if (rider.Description) { %>
+                <div class="description-section">
+                  <div class="description-title">Description:</div>
+                  <div class="description-text"><%= rider.Description %></div>
+                </div>
+              <% } else { %>
+                <div class="description-section">
+                  <div class="description-title">Description:</div>
+                  <div class="description-text no-description">No description provided</div>
+                </div>
+              <% } %>
+              
+              <div class="rider-actions">
+                <a href="/admin/riders/<%= rider.RiderID %>/edit" class="btn btn-small">Edit Rider</a>
+                <button class="btn btn-danger btn-small delete-rider-btn" data-rider-id="<%= rider.RiderID %>">Delete</button>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <h2>Error loading riders</h2>
+        <p>There was an error loading the riders. Please try again.</p>
+        <button onclick="window.location.reload()" class="btn">Refresh Page</button>
+      </div>
+    <% } %>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const deleteButtons = document.querySelectorAll('.delete-rider-btn');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const riderId = this.getAttribute('data-rider-id');
+          const riderCard = this.closest('.rider-card');
+          const riderName = riderCard.querySelector('.rider-name').textContent;
+          
+          if (confirm(`Are you sure you want to delete "${riderName}"? This action cannot be undone and will remove this rider from any associated insurance plans.`)) {
+            fetch(`/admin/riders/${riderId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            })
+            .then(response => {
+              if (response.ok) {
+                // Remove the card with animation
+                riderCard.style.transition = 'all 0.3s ease';
+                riderCard.style.transform = 'scale(0)';
+                riderCard.style.opacity = '0';
+                
+                setTimeout(() => {
+                  window.location.reload();
+                }, 300);
+              } else {
+                alert('Error deleting rider. Please try again.');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('Error deleting rider. Please try again.');
+            });
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

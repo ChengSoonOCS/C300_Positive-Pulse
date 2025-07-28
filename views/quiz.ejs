@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz - <%= module.title %> - <%= quest.title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/module.css">
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+  <style>
+    .quiz-container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 40px; }
+    .quiz-question { font-size: 1.2rem; margin-bottom: 18px; }
+    .quiz-options { margin-bottom: 24px; }
+    .quiz-options label { display: block; margin-bottom: 10px; cursor: pointer; }
+    .quiz-submit { background: #ff2c58; color: #fff; border: none; border-radius: 10px; padding: 12px 28px; font-size: 1.1rem; font-family: 'Silkscreen', monospace; cursor: pointer; }
+    .quiz-submit:hover { background: #ff6b35; }
+    .quiz-result { font-size: 1.2rem; color: #2e7d32; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <header>
+    <%- include('partials/navbar.ejs') %>
+  </header>
+  <main>
+    <div class="quiz-container">
+      <h2>Quiz: <%= quest.title %></h2>
+      <% if (typeof result !== 'undefined') { %>
+        <div class="quiz-result"><%= result %></div>
+        <a href="/education/modules/<%= module.id %>?quest=<%= quest.id %>" class="start-btn">Back to Learning</a>
+      <% } else { %>
+        <form method="POST" action="">
+          <% quiz.forEach(function(q, i) { %>
+            <div class="quiz-question"><%= i+1 %>. <%= q.question %></div>
+            <div class="quiz-options">
+              <% q.options.forEach(function(opt) { %>
+                <label><input type="radio" name="q<%= i %>" value="<%= opt %>" required> <%= opt %></label>
+              <% }) %>
+            </div>
+          <% }) %>
+          <button type="submit" class="quiz-submit">Submit Quiz</button>
+        </form>
+      <% } %>
+    </div>
+  </main>
+</body>
+</html>

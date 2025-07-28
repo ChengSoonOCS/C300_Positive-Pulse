@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Rider | Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+  <style>
+    .admin-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .form-container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .form-header h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    .form-header .rider-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+    
+    .rider-info {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #2196f3;
+    }
+    
+    .rider-info strong {
+      color: #2196f3;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: bold;
+    }
+    
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: 'Silkscreen', monospace;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    
+    .form-group textarea {
+      height: 120px;
+      resize: vertical;
+    }
+    
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none;
+      border-color: #2196f3;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .rider-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+      border-left: 4px solid #2196f3;
+    }
+    
+    .rider-header {
+      margin-bottom: 15px;
+    }
+    
+    .rider-header h3 {
+      color: #333;
+      margin-bottom: 5px;
+    }
+    
+    .usage-info {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border-left: 4px solid #1976d2;
+    }
+    
+    .usage-info h4 {
+      color: #1976d2;
+      margin-bottom: 10px;
+    }
+    
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Silkscreen', monospace;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: #f8f9fa;
+      color: #333;
+      border: 2px solid #e0e0e0;
+    }
+    
+    .error {
+      background: #ffebee;
+      color: #c62828;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .help-text {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+    }
+    
+    .required {
+      color: #f44336;
+    }
+    
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .admin-container {
+        padding: 10px;
+      }
+      
+      .form-container {
+        padding: 20px;
+      }
+      
+      .form-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar.ejs') %>
+  
+  <div class="admin-container">
+    <div class="form-container">
+      <div class="form-header">
+        <div class="rider-icon">🏥</div>
+        <h1>Edit Rider</h1>
+        <div class="rider-info">
+          Editing: <strong><%= rider.Name %></strong> (ID: #<%= rider.RiderID %>)
+        </div>
+      </div>
+      
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+      
+      <form method="POST" action="/admin/riders/<%= rider.RiderID %>/edit">
+        <div class="form-group">
+          <label for="name">Rider Name <span class="required">*</span></label>
+          <input type="text" id="name" name="name" required placeholder="e.g., PRUExtra Plus" value="<%= rider.Name %>">
+          <div class="help-text">The official name of the rider</div>
+        </div>
+        
+        <div class="rider-section">
+          <div class="rider-header">
+            <h3>🏥 Rider Details</h3>
+            <p class="help-text">Provide additional information about this rider</p>
+          </div>
+          
+          <div class="form-group">
+            <label for="description">Description (Optional)</label>
+            <textarea id="description" name="description" placeholder="e.g., Additional coverage for outpatient treatments and specialist consultations"><%= rider.Description || '' %></textarea>
+            <div class="help-text">Describe what this rider covers and its benefits</div>
+          </div>
+        </div>
+        
+        <% if (companies && companies.length > 0) { %>
+        <div class="form-group">
+          <label for="insuranceCompanyId">Insurance Company (Optional)</label>
+          <select id="insuranceCompanyId" name="insuranceCompanyId">
+            <option value="">Select a company (optional)</option>
+            <% companies.forEach(company => { %>
+              <option value="<%= company.InsuranceCompanyID %>" 
+                      <%= rider.InsuranceCompanyID === company.InsuranceCompanyID ? 'selected' : '' %>>
+                <%= company.InsuranceCompanyName %>
+              </option>
+            <% }) %>
+          </select>
+          <div class="help-text">Link this rider to a specific insurance company if available</div>
+        </div>
+        <% } %>
+        
+        <div class="usage-info">
+          <h4>📊 Usage Information</h4>
+          <p>This rider is currently being used by insurance plans in the system. Any changes will be reflected in those plans.</p>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Update Rider</button>
+          <a href="/admin/riders" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    // Form validation
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.querySelector('form');
+      const requiredFields = form.querySelectorAll('[required]');
+      
+      form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+          if (!field.value.trim()) {
+            field.style.borderColor = '#f44336';
+            isValid = false;
+          } else {
+            field.style.borderColor = '#e0e0e0';
+          }
+        });
+        
+        if (!isValid) {
+          e.preventDefault();
+          alert('Please fill in all required fields.');
+        }
+      });
+      
+      // Reset border color on input
+      requiredFields.forEach(field => {
+        field.addEventListener('input', function() {
+          if (this.value.trim()) {
+            this.style.borderColor = '#e0e0e0';
+          }
+        });
+      });
+      
+      // Confirm before leaving if form has been modified
+      let formModified = false;
+      const formElements = form.querySelectorAll('input, textarea, select');
+      
+      formElements.forEach(element => {
+        element.addEventListener('change', function() {
+          formModified = true;
+        });
+      });
+      
+      window.addEventListener('beforeunload', function(e) {
+        if (formModified) {
+          e.preventDefault();
+          e.returnValue = '';
+        }
+      });
+      
+      // Don't show warning when submitting form
+      form.addEventListener('submit', function() {
+        formModified = false;
+      });
+    });
+  </script>
+</body>
+</html>
