@@ -314,15 +314,25 @@
       toggleCoverageFields();
       
       const form = document.querySelector('form');
-      const requiredFields = form.querySelectorAll('[required]');
       
       form.addEventListener('submit', function(e) {
         let isValid = true;
+        const errors = [];
         
-        requiredFields.forEach(field => {
-          if (!field.value.trim()) {
+        // Get currently required fields (including dynamically required ones)
+        const currentlyRequiredFields = form.querySelectorAll('[required]');
+        
+        currentlyRequiredFields.forEach(field => {
+          const fieldValue = field.value ? field.value.trim() : '';
+          
+          if (!fieldValue) {
             field.style.borderColor = '#ff2c58';
             isValid = false;
+            
+            // Get field label for better error message
+            const label = field.previousElementSibling;
+            const fieldName = label ? label.textContent.replace('*', '').trim() : field.name;
+            errors.push(fieldName);
           } else {
             field.style.borderColor = '#e0e0e0';
           }
@@ -330,13 +340,30 @@
         
         if (!isValid) {
           e.preventDefault();
-          alert('Please fill in all required fields.');
+          const errorMessage = errors.length > 0 
+            ? `Please fill in the following required fields:\n• ${errors.join('\n• ')}`
+            : 'Please fill in all required fields.';
+          alert(errorMessage);
+          
+          // Scroll to first error field
+          const firstErrorField = form.querySelector('[style*="border-color: rgb(255, 44, 88)"]');
+          if (firstErrorField) {
+            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstErrorField.focus();
+          }
         }
       });
       
-      // Reset border color on input
-      requiredFields.forEach(field => {
+      // Reset border color on input for all form fields
+      const allFormFields = form.querySelectorAll('input, textarea, select');
+      allFormFields.forEach(field => {
         field.addEventListener('input', function() {
+          if (this.value.trim()) {
+            this.style.borderColor = '#e0e0e0';
+          }
+        });
+        
+        field.addEventListener('change', function() {
           if (this.value.trim()) {
             this.style.borderColor = '#e0e0e0';
           }

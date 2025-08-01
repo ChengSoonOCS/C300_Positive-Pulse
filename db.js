@@ -17,4 +17,8 @@ db.connect((err) => {
     console.log('Connected to MySQL database');
 });
 
+// Create a promise version for when needed
+const dbPromise = db.promise();
+
 module.exports = db;
+module.exports.promise = dbPromise;
