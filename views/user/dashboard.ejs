@@ -167,6 +167,14 @@
             margin-bottom: 10px;
         }
 
+        .reward-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
         .reward-cost {
             color: #ff2c58;
             font-weight: bold;
@@ -373,13 +381,25 @@
         </div>
         <% } %>
 
-        <!-- Rewards Preview -->
-        <h2 class="section-title">🎁 Available Rewards</h2>
-        <div class="empty-state">
-            <div class="empty-state-icon">🎁</div>
-            <h3>Rewards Coming Soon!</h3>
-            <p>Complete modules to unlock exciting rewards!</p>
+        <!-- Redeemed Rewards Preview -->
+        <% if (redeemedRewards && redeemedRewards.length > 0) { %>
+        <h2 class="section-title">🎉 Your Redeemed Rewards</h2>
+        <div class="rewards-preview" style="margin-bottom: 30px;">
+            <% redeemedRewards.forEach(function(reward) { %>
+                <div class="reward-preview-card">
+                    <% if (reward.image) { %>
+                        <img src="/images/rewards/<%= reward.image %>" alt="<%= reward.name %>" class="reward-image">
+                    <% } else { %>
+                        <div class="reward-icon">🎁</div>
+                    <% } %>
+                    <div style="font-weight: bold; margin-bottom: 5px;"><%= reward.name %></div>
+                    <div class="reward-description" style="font-size: 0.95rem; color: #666; margin-bottom: 8px;"><%= reward.description %></div>
+                    <div class="reward-cost">🪙 <%= reward.cost %> tokens</div>
+                    <div style="font-size: 0.8rem; color: #888; margin-top: 6px;">Redeemed on <%= new Date(reward.redeemedAt).toLocaleDateString() %></div>
+                </div>
+            <% }); %>
         </div>
+        <% } %>
 
         <div style="text-align: center; margin-top: 30px;">
             <a href="/user/rewards" class="btn-pulse">View All Rewards</a>

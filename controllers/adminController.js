@@ -188,12 +188,12 @@ exports.updateModule = (req, res) => {
       if (err || results.length === 0) {
         return res.status(404).render('error', {
           message: 'Module not found',
-          user: req.session.user || null
+          user: getUserWithProfilePic(req.session.user)
         });
       }
       
       res.render('admin/edit-module', {
-        user: req.session.user,
+        user: getUserWithProfilePic(req.session.user),
         module: results[0],
         error: 'Title and description are required'
       });
@@ -209,12 +209,12 @@ exports.updateModule = (req, res) => {
         if (err || results.length === 0) {
           return res.status(404).render('error', {
             message: 'Module not found',
-            user: req.session.user || null
+            user: getUserWithProfilePic(req.session.user)
           });
         }
         
         res.render('admin/edit-module', {
-          user: req.session.user,
+          user: getUserWithProfilePic(req.session.user),
           module: results[0],
           error: 'Error updating module'
         });
@@ -236,7 +236,7 @@ exports.deleteModule = (req, res) => {
       console.error('Error deleting chapters:', err);
       return res.status(500).render('error', {
         message: 'Error deleting module',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -248,7 +248,7 @@ exports.deleteModule = (req, res) => {
         console.error('Error deleting module:', err);
         return res.status(500).render('error', {
           message: 'Error deleting module',
-          user: req.session.user || null
+          user: getUserWithProfilePic(req.session.user)
         });
       }
       
@@ -269,7 +269,7 @@ exports.showModuleChapters = (req, res) => {
       console.error('Error fetching module:', err);
       return res.status(404).render('error', {
         message: 'Module not found',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -278,12 +278,12 @@ exports.showModuleChapters = (req, res) => {
         console.error('Error fetching chapters:', err);
         return res.status(500).render('error', {
           message: 'Error loading chapters',
-          user: req.session.user || null
+          user: getUserWithProfilePic(req.session.user)
         });
       }
       
       res.render('admin/module-chapters', {
-        user: req.session.user,
+        user: getUserWithProfilePic(req.session.user),
         module: moduleResults[0],
         chapters: chapters
       });
@@ -301,12 +301,12 @@ exports.showCreateChapter = (req, res) => {
       console.error('Error fetching module:', err);
       return res.status(404).render('error', {
         message: 'Module not found',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
     res.render('admin/create-chapter', {
-      user: req.session.user,
+      user: getUserWithProfilePic(req.session.user),
       module: results[0],
       error: null
     });
@@ -322,12 +322,12 @@ exports.createChapter = (req, res) => {
       if (err || results.length === 0) {
         return res.status(404).render('error', {
           message: 'Module not found',
-          user: req.session.user || null
+          user: getUserWithProfilePic(req.session.user)
         });
       }
       
       res.render('admin/create-chapter', {
-        user: req.session.user,
+        user: getUserWithProfilePic(req.session.user),
         module: results[0],
         error: 'Title and content are required'
       });
@@ -342,7 +342,7 @@ exports.createChapter = (req, res) => {
       console.error('Error getting chapter order:', err);
       return res.status(500).render('error', {
         message: 'Error creating chapter',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -354,7 +354,7 @@ exports.createChapter = (req, res) => {
         console.error('Error creating chapter:', err);
         return res.status(500).render('error', {
           message: 'Error creating chapter',
-          user: req.session.user || null
+          user: getUserWithProfilePic(req.session.user)
         });
       }
       
@@ -415,7 +415,7 @@ exports.showEditChapter = (req, res) => {
       console.error('Error fetching module:', err);
       return res.status(404).render('error', {
         message: 'Module not found',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -424,7 +424,7 @@ exports.showEditChapter = (req, res) => {
         console.error('Error fetching chapter:', err);
         return res.status(404).render('error', {
           message: 'Chapter not found',
-          user: req.session.user || null
+          user: getUserWithProfilePic(req.session.user)
         });
       }
       
@@ -438,7 +438,7 @@ exports.showEditChapter = (req, res) => {
         console.log('Quiz query results for moduleId:', moduleId, 'chapterId:', chapterId, 'results:', quizResults);
         
         res.render('admin/edit-chapter', {
-          user: req.session.user,
+          user: getUserWithProfilePic(req.session.user),
           module: moduleResults[0],
           chapter: chapterResults[0],
           quizQuestions: quizResults,
@@ -459,7 +459,7 @@ exports.updateChapter = (req, res) => {
       if (err || moduleResults.length === 0) {
         return res.status(404).render('error', {
           message: 'Module not found',
-          user: req.session.user || null
+          user: getUserWithProfilePic(req.session.user)
         });
       }
       
@@ -467,14 +467,14 @@ exports.updateChapter = (req, res) => {
         if (err || chapterResults.length === 0) {
           return res.status(404).render('error', {
             message: 'Chapter not found',
-            user: req.session.user || null
+            user: getUserWithProfilePic(req.session.user)
           });
         }
         
         // Get existing quiz questions for error page
         db.query('SELECT * FROM quiz WHERE ModuleID = ? AND ChapterID = ? ORDER BY QuestionID', [moduleId, chapterId], (err, quizResults) => {
           res.render('admin/edit-chapter', {
-            user: req.session.user,
+            user: getUserWithProfilePic(req.session.user),
             module: moduleResults[0],
             chapter: chapterResults[0],
             quizQuestions: quizResults || [],
@@ -493,7 +493,7 @@ exports.updateChapter = (req, res) => {
       console.error('Error updating chapter:', err);
       return res.status(500).render('error', {
         message: 'Error updating chapter',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -548,7 +548,7 @@ exports.deleteChapter = (req, res) => {
       console.error('Error deleting chapter:', err);
       return res.status(500).render('error', {
         message: 'Error deleting chapter',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -558,14 +558,14 @@ exports.deleteChapter = (req, res) => {
 
 // Rewards Management
 exports.showRewards = (req, res) => {
-  const query = 'SELECT * FROM rewards ORDER BY TokenCost ASC';
+  const query = 'SELECT RewardID, RewardName, Description, TokenCost, QuantityAvailable, RewardImage, IsActive, CreatedAt FROM rewards ORDER BY TokenCost ASC';
   
   db.query(query, (err, rewards) => {
     if (err) {
       console.error('Error fetching rewards:', err);
       return res.status(500).render('error', {
         message: 'Error loading rewards',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -579,28 +579,33 @@ exports.showRewards = (req, res) => {
 exports.showCreateReward = (req, res) => {
   res.render('admin/create-reward', {
     user: getUserWithProfilePic(req.session.user),
-    error: null
+    error: null,
+    formData: {}
   });
 };
 
 exports.createReward = (req, res) => {
-  const { rewardName, description, tokenCost, quantityAvailable } = req.body;
+  const { name, description, cost, quantity } = req.body;
+  const RewardImage = req.file ? req.file.filename : null;
+  const formData = { name, description, cost, quantity };
   
-  if (!rewardName || !description || !tokenCost) {
+  if (!name || !description || !cost) {
     return res.render('admin/create-reward', {
       user: getUserWithProfilePic(req.session.user),
-      error: 'Reward name, description, and token cost are required'
+      error: 'Reward name, description, and token cost are required',
+      formData
     });
   }
   
-  const query = 'INSERT INTO rewards (RewardName, Description, TokenCost, QuantityAvailable, IsActive, CreatedAt) VALUES (?, ?, ?, ?, 1, NOW())';
+  const query = 'INSERT INTO rewards (RewardName, Description, TokenCost, QuantityAvailable, RewardImage, IsActive, CreatedAt) VALUES (?, ?, ?, ?, ?, 1, NOW())';
   
-  db.query(query, [rewardName, description, parseInt(tokenCost), quantityAvailable || null], (err, result) => {
+  db.query(query, [name, description, parseInt(cost), quantity || 100, RewardImage], (err, result) => {
     if (err) {
       console.error('Error creating reward:', err);
       return res.render('admin/create-reward', {
         user: getUserWithProfilePic(req.session.user),
-        error: 'Error creating reward'
+        error: 'Error creating reward',
+        formData
       });
     }
     
@@ -618,12 +623,12 @@ exports.showEditReward = (req, res) => {
       console.error('Error fetching reward:', err);
       return res.status(404).render('error', {
         message: 'Reward not found',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
     res.render('admin/edit-reward', {
-      user: req.session.user,
+      user: getUserWithProfilePic(req.session.user),
       reward: results[0],
       error: null
     });
@@ -632,33 +637,42 @@ exports.showEditReward = (req, res) => {
 
 exports.updateReward = (req, res) => {
   const rewardId = req.params.id;
-  const { rewardName, description, tokenCost, quantityAvailable, isActive } = req.body;
+  const { name, description, cost, quantity, active } = req.body;
+  const RewardImage = req.file ? req.file.filename : null;
   
-  if (!rewardName || !description || !tokenCost) {
+  if (!name || !description || !cost) {
     return db.query('SELECT * FROM rewards WHERE RewardID = ?', [rewardId], (err, results) => {
       if (err || results.length === 0) {
         return res.status(404).render('error', {
           message: 'Reward not found',
-          user: req.session.user || null
+          user: getUserWithProfilePic(req.session.user)
         });
       }
       
       res.render('admin/edit-reward', {
-        user: req.session.user,
+        user: getUserWithProfilePic(req.session.user),
         reward: results[0],
         error: 'Reward name, description, and token cost are required'
       });
     });
   }
   
-  const query = 'UPDATE rewards SET RewardName = ?, Description = ?, TokenCost = ?, QuantityAvailable = ?, IsActive = ? WHERE RewardID = ?';
+  // Build the query based on whether an image was uploaded
+  let query, params;
+  if (RewardImage) {
+    query = 'UPDATE rewards SET RewardName = ?, Description = ?, TokenCost = ?, QuantityAvailable = ?, RewardImage = ?, IsActive = ? WHERE RewardID = ?';
+    params = [name, description, parseInt(cost), quantity || null, RewardImage, active ? 1 : 0, rewardId];
+  } else {
+    query = 'UPDATE rewards SET RewardName = ?, Description = ?, TokenCost = ?, QuantityAvailable = ?, IsActive = ? WHERE RewardID = ?';
+    params = [name, description, parseInt(cost), quantity || null, active ? 1 : 0, rewardId];
+  }
   
-  db.query(query, [rewardName, description, parseInt(tokenCost), quantityAvailable || null, isActive ? 1 : 0, rewardId], (err, result) => {
+  db.query(query, params, (err, result) => {
     if (err) {
       console.error('Error updating reward:', err);
       return res.status(500).render('error', {
         message: 'Error updating reward',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -676,7 +690,7 @@ exports.deleteReward = (req, res) => {
       console.error('Error deleting reward:', err);
       return res.status(500).render('error', {
         message: 'Error deleting reward',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -705,7 +719,7 @@ exports.showInsurancePlans = (req, res) => {
       console.error('Error fetching insurance plans:', err);
       return res.status(500).render('error', {
         message: 'Error loading insurance plans',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -741,7 +755,7 @@ exports.showCreateInsurancePlan = (req, res) => {
         }
         
         res.render('admin/create-insurance', {
-          user: req.session.user,
+          user: getUserWithProfilePic(req.session.user),
           companies: companies,
           riders: riders,
           coverageDetails: coverageDetails,
@@ -760,7 +774,7 @@ exports.createInsurancePlan = (req, res) => {
       db.query('SELECT * FROM rider ORDER BY Name', (err2, riders) => {
         db.query('SELECT * FROM coveragedetails ORDER BY CoverageDetailsID', (err3, coverageDetailsList) => {
           res.render('admin/create-insurance', {
-            user: req.session.user,
+            user: getUserWithProfilePic(req.session.user),
             companies: companies || [],
             riders: riders || [],
             coverageDetails: coverageDetailsList || [],
@@ -788,7 +802,7 @@ exports.createInsurancePlan = (req, res) => {
           db.query('SELECT * FROM rider ORDER BY Name', (err2, riders) => {
             db.query('SELECT * FROM coveragedetails ORDER BY CoverageDetailsID', (err3, coverageDetailsList) => {
               res.render('admin/create-insurance', {
-                user: req.session.user,
+                user: getUserWithProfilePic(req.session.user),
                 companies: companies || [],
                 riders: riders || [],
                 coverageDetails: coverageDetailsList || [],
@@ -815,7 +829,7 @@ exports.createInsurancePlan = (req, res) => {
             db.query('SELECT * FROM rider ORDER BY Name', (err2, riders) => {
               db.query('SELECT * FROM coveragedetails ORDER BY CoverageDetailsID', (err3, coverageDetailsList) => {
                 res.render('admin/create-insurance', {
-                  user: req.session.user,
+                  user: getUserWithProfilePic(req.session.user),
                   companies: companies || [],
                   riders: riders || [],
                   coverageDetails: coverageDetailsList || [],
@@ -843,7 +857,7 @@ exports.createInsurancePlan = (req, res) => {
           db.query('SELECT * FROM rider ORDER BY Name', (err2, riders) => {
             db.query('SELECT * FROM coveragedetails ORDER BY CoverageDetailsID', (err3, coverageDetailsList) => {
               res.render('admin/create-insurance', {
-                user: req.session.user,
+                user: getUserWithProfilePic(req.session.user),
                 companies: companies || [],
                 riders: riders || [],
                 coverageDetails: coverageDetailsList || [],
@@ -877,7 +891,7 @@ exports.showEditInsurancePlan = (req, res) => {
       console.error('Error fetching insurance plan:', err);
       return res.status(404).render('error', {
         message: 'Insurance plan not found',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -900,7 +914,7 @@ exports.showEditInsurancePlan = (req, res) => {
           }
           
           res.render('admin/edit-insurance', {
-            user: req.session.user,
+            user: getUserWithProfilePic(req.session.user),
             plan: planResults[0],
             companies: companies,
             riders: riders,
@@ -922,7 +936,7 @@ exports.updateInsurancePlan = (req, res) => {
             if (err || planResults.length === 0) {
                 return res.status(404).render('error', {
                     message: 'Insurance plan not found',
-                    user: req.session.user || null
+                    user: getUserWithProfilePic(req.session.user)
                 });
             }
       
@@ -930,7 +944,7 @@ exports.updateInsurancePlan = (req, res) => {
                 db.query('SELECT * FROM rider ORDER BY Name', (err2, riders) => {
                     db.query('SELECT * FROM coveragedetails ORDER BY CoverageDetailsID', (err3, coverageDetailsList) => {
                         res.render('admin/edit-insurance', {
-                            user: req.session.user,
+                            user: getUserWithProfilePic(req.session.user),
                             plan: planResults[0],
                             companies: companies || [],
                             riders: riders || [],
@@ -957,7 +971,7 @@ exports.updateInsurancePlan = (req, res) => {
                     if (err || planResults.length === 0) {
                         return res.status(404).render('error', {
                             message: 'Insurance plan not found',
-                            user: req.session.user || null
+                            user: getUserWithProfilePic(req.session.user)
                         });
                     }
           
@@ -965,7 +979,7 @@ exports.updateInsurancePlan = (req, res) => {
                         db.query('SELECT * FROM rider ORDER BY Name', (err2, riders) => {
                             db.query('SELECT * FROM coveragedetails ORDER BY CoverageDetailsID', (err3, coverageDetailsList) => {
                                 res.render('admin/edit-insurance', {
-                                    user: req.session.user,
+                                    user: getUserWithProfilePic(req.session.user),
                                     plan: planResults[0],
                                     companies: companies || [],
                                     riders: riders || [],
@@ -1003,7 +1017,7 @@ exports.updateInsurancePlan = (req, res) => {
                     if (err || planResults.length === 0) {
                         return res.status(404).render('error', {
                             message: 'Insurance plan not found',
-                            user: req.session.user || null
+                            user: getUserWithProfilePic(req.session.user)
                         });
                     }
           
@@ -1011,7 +1025,7 @@ exports.updateInsurancePlan = (req, res) => {
                         db.query('SELECT * FROM rider ORDER BY Name', (err2, riders) => {
                             db.query('SELECT * FROM coveragedetails ORDER BY CoverageDetailsID', (err3, coverageDetailsList) => {
                                 res.render('admin/edit-insurance', {
-                                    user: req.session.user,
+                                    user: getUserWithProfilePic(req.session.user),
                                     plan: planResults[0],
                                     companies: companies || [],
                                     riders: riders || [],
@@ -1063,12 +1077,12 @@ exports.showRiders = (req, res) => {
       console.error('Error fetching riders:', err);
       return res.status(500).render('error', {
         message: 'Error loading riders',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
     res.render('admin/riders', {
-      user: req.session.user,
+      user: getUserWithProfilePic(req.session.user),
       riders: riders
     });
   });
@@ -1085,7 +1099,7 @@ exports.showCreateRider = (req, res) => {
     }
     
     res.render('admin/create-rider', {
-      user: req.session.user,
+      user: getUserWithProfilePic(req.session.user),
       companies: companies,
       error: null
     });
@@ -1098,7 +1112,7 @@ exports.createRider = (req, res) => {
   if (!name) {
     return db.query('SELECT * FROM insurancecompany ORDER BY InsuranceCompanyName', (err, companies) => {
       res.render('admin/create-rider', {
-        user: req.session.user,
+        user: getUserWithProfilePic(req.session.user),
         companies: companies || [],
         error: 'Rider name is required'
       });
@@ -1115,7 +1129,7 @@ exports.createRider = (req, res) => {
       console.error('Error creating rider:', err);
       return db.query('SELECT * FROM insurancecompany ORDER BY InsuranceCompanyName', (err, companies) => {
         res.render('admin/create-rider', {
-          user: req.session.user,
+          user: getUserWithProfilePic(req.session.user),
           companies: companies || [],
           error: 'Error creating rider'
         });
@@ -1137,7 +1151,7 @@ exports.showEditRider = (req, res) => {
       console.error('Error fetching rider:', err);
       return res.status(404).render('error', {
         message: 'Rider not found',
-        user: req.session.user || null
+        user: getUserWithProfilePic(req.session.user)
       });
     }
     
@@ -1148,7 +1162,7 @@ exports.showEditRider = (req, res) => {
       }
       
       res.render('admin/edit-rider', {
-        user: req.session.user,
+        user: getUserWithProfilePic(req.session.user),
         rider: riderResults[0],
         companies: companies,
         error: null
@@ -1166,13 +1180,13 @@ exports.updateRider = (req, res) => {
       if (err || riderResults.length === 0) {
         return res.status(404).render('error', {
           message: 'Rider not found',
-          user: req.session.user || null
+          user: getUserWithProfilePic(req.session.user)
         });
       }
       
       db.query('SELECT * FROM insurancecompany ORDER BY InsuranceCompanyName', (err, companies) => {
         res.render('admin/edit-rider', {
-          user: req.session.user,
+          user: getUserWithProfilePic(req.session.user),
           rider: riderResults[0],
           companies: companies || [],
           error: 'Rider name is required'
@@ -1194,13 +1208,13 @@ exports.updateRider = (req, res) => {
         if (err || riderResults.length === 0) {
           return res.status(404).render('error', {
             message: 'Rider not found',
-            user: req.session.user || null
+            user: getUserWithProfilePic(req.session.user)
           });
         }
         
         db.query('SELECT * FROM insurancecompany ORDER BY InsuranceCompanyName', (err, companies) => {
           res.render('admin/edit-rider', {
-            user: req.session.user,
+            user: getUserWithProfilePic(req.session.user),
             rider: riderResults[0],
             companies: companies || [],
             error: 'Error updating rider'

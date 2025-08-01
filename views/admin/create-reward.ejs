@@ -176,39 +176,48 @@
       <% } %>
       
       <div class="reward-preview">
-        <div class="preview-icon">🎁</div>
+        <div class="preview-icon" id="preview-icon">🎁</div>
+        <div class="preview-image" id="preview-image" style="display: none;">
+          <img id="preview-img" src="" alt="Reward Preview" style="max-width: 100px; max-height: 100px; border-radius: 8px;">
+        </div>
         <div class="preview-name" id="preview-name">Reward Name</div>
         <div class="preview-cost" id="preview-cost">🪙 0 tokens</div>
         <div class="preview-description" id="preview-description">Reward description will appear here</div>
       </div>
       
-      <form method="POST" action="/admin/rewards">
+      <form method="POST" action="/admin/rewards" enctype="multipart/form-data">
         <div class="form-group">
           <label for="name">Reward Name *</label>
           <input type="text" id="name" name="name" required maxlength="100" 
-                 placeholder="e.g., Coffee Voucher">
+                 placeholder="e.g., Coffee Voucher" value="<%= formData && formData.name ? formData.name : '' %>">
           <div class="help-text">Choose a clear, descriptive name for the reward</div>
         </div>
         
         <div class="form-group">
           <label for="description">Description *</label>
           <textarea id="description" name="description" required maxlength="500" 
-                    placeholder="Describe what this reward includes and how to redeem it"></textarea>
+                    placeholder="Describe what this reward includes and how to redeem it"><%= formData && formData.description ? formData.description : '' %></textarea>
           <div class="help-text">Provide clear instructions on how to use this reward</div>
+        </div>
+
+        <div class="form-group">
+          <label for="image">Reward Image</label>
+          <input type="file" id="image" name="RewardImage" accept="image/*">
+          <div class="help-text">Upload an image for this reward (optional)</div>
         </div>
         
         <div class="form-row">
           <div class="form-group">
             <label for="cost">Token Cost *</label>
             <input type="number" id="cost" name="cost" required min="1" max="10000" 
-                   placeholder="50">
+                   placeholder="50" value="<%= formData && formData.cost ? formData.cost : '' %>">
             <div class="help-text">How many tokens required to redeem</div>
           </div>
           
           <div class="form-group">
             <label for="quantity">Available Quantity</label>
             <input type="number" id="quantity" name="quantity" min="1" max="1000" 
-                   placeholder="100" value="100">
+                   placeholder="100" value="<%= formData && formData.quantity ? formData.quantity : '100' %>">
             <div class="help-text">Number of rewards available (default: 100)</div>
           </div>
         </div>
@@ -226,10 +235,14 @@
       const nameInput = document.getElementById('name');
       const descriptionInput = document.getElementById('description');
       const costInput = document.getElementById('cost');
+      const imageInput = document.getElementById('image');
       
       const previewName = document.getElementById('preview-name');
       const previewDescription = document.getElementById('preview-description');
       const previewCost = document.getElementById('preview-cost');
+      const previewIcon = document.getElementById('preview-icon');
+      const previewImage = document.getElementById('preview-image');
+      const previewImg = document.getElementById('preview-img');
       
       // Update preview in real-time
       function updatePreview() {
@@ -237,6 +250,23 @@
         previewDescription.textContent = descriptionInput.value || 'Reward description will appear here';
         previewCost.textContent = `🪙 ${costInput.value || 0} tokens`;
       }
+      
+      // Handle image preview
+      imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewIcon.style.display = 'none';
+            previewImage.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          previewIcon.style.display = 'block';
+          previewImage.style.display = 'none';
+        }
+      });
       
       nameInput.addEventListener('input', updatePreview);
       descriptionInput.addEventListener('input', updatePreview);

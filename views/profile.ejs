@@ -256,7 +256,7 @@
                           <img id="profile-pic-img" src="<%= user.profilePicUrl || '/images/default-avatar.svg' %>"
                             alt="Profile Picture" />
                         </div>
-                        <input type="file" name="profilePic" id="profilePicInput" accept="image/*" />
+                        <input type="file" name="Image" id="profilePicInput" accept="image/*" />
                       </div>
 
                       <div class="form-row">
@@ -353,13 +353,15 @@
       if (urlParams.get('error') && !document.querySelector('.alert.error')) {
         const alertDiv = document.createElement('div');
         alertDiv.className = 'alert error';
-        alertDiv.textContent = 'Failed to update profile. Please try again.';
+        // Use the actual error message from URL parameter or default message
+        alertDiv.textContent = urlParams.get('error') || 'Failed to update profile. Please try again.';
         document.querySelector('.profile-tabs').insertAdjacentElement('beforebegin', alertDiv);
       }
       if (urlParams.get('success') && !document.querySelector('.alert.success')) {
         const alertDiv = document.createElement('div');
         alertDiv.className = 'alert success';
-        alertDiv.textContent = 'Profile updated successfully!';
+        // Use the actual success message from URL parameter or default message
+        alertDiv.textContent = urlParams.get('success') || 'Profile updated successfully!';
         document.querySelector('.profile-tabs').insertAdjacentElement('beforebegin', alertDiv);
       }
     </script>

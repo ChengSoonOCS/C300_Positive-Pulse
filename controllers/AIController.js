@@ -149,15 +149,55 @@ exports.getInsurancePlansComparison = async (req, res) => {
 
 
 
-exports.getAIChat = (req, res) => {
-    // Render AI chat page with user session data
-    res.render('AI', {
-        title: 'AI Health Insurance Assistant',
-        messages: req.flash('success'),
-        errors: req.flash('error'),
-        session: req.session,
-        user: req.session.user || null
-    });
+exports.getAIChat = async (req, res) => {
+    try {
+        let user = req.session.user || null;
+        
+        // If user is logged in, get their profile image
+        if (user) {
+            const userQuery = `SELECT Image FROM user WHERE UserID = ?`;
+            
+            const userResult = await new Promise((resolve, reject) => {
+                db.query(userQuery, [user.id], (err, results) => {
+                    if (err) reject(err);
+                    else resolve(results[0] || null);
+                });
+            });
+            
+            if (userResult) {
+                user = {
+                    ...user,
+                    profilePicUrl: (() => {
+                        if (!userResult.Image || userResult.Image === 'default-avatar.svg') {
+                            return '/images/default-avatar.svg';
+                        }
+                        // Handle both full paths and filenames
+                        if (userResult.Image.startsWith('/images/')) {
+                            return userResult.Image;
+                        }
+                        return '/images/users/' + userResult.Image;
+                    })()
+                };
+            }
+        }
+
+        res.render('AI', {
+            title: 'AI Health Insurance Assistant',
+            messages: req.flash('success'),
+            errors: req.flash('error'),
+            session: req.session,
+            user: user
+        });
+    } catch (error) {
+        console.error('Error in getAIChat:', error);
+        res.render('AI', {
+            title: 'AI Health Insurance Assistant',
+            messages: req.flash('error'),
+            errors: ['Error loading page'],
+            session: req.session,
+            user: req.session.user || null
+        });
+    }
 };
 
 

@@ -110,6 +110,7 @@ exports.login = async (req, res) => {
             role: user.role || 'user',
             RoleID: user.RoleID,
             tokens: user.TokenBalance || 0,
+            Image: user.Image, // Store the raw Image field from database
             profilePicUrl: (() => {
                 if (!user.Image || user.Image === 'default-avatar.svg') {
                     return '/images/default-avatar.svg';
@@ -340,52 +341,67 @@ exports.updateProfile = async (req, res) => {
     const userId = req.session.user.id;
     const { username, email, contact, address } = req.body;
     
-    // Handle profile picture upload if provided
-    let imageFilename = null;
-    if (req.file) {
-      imageFilename = req.file.filename; // Store just the filename for consistency
-      console.log('Profile image uploaded:', {
-        originalName: req.file.originalname,
-        filename: req.file.filename,
-        path: req.file.path
-      });
-    } else {
-      console.log('No file uploaded in request');
-    }
-    
-    // Update user information in database
-    let updateQuery, updateParams;
-    
-    if (imageFilename) {
-      updateQuery = 'UPDATE user SET UserName = ?, Email = ?, Contact = ?, Address = ?, Image = ? WHERE UserID = ?';
-      updateParams = [username, email, contact, address, imageFilename, userId];
-    } else {
-      updateQuery = 'UPDATE user SET UserName = ?, Email = ?, Contact = ?, Address = ? WHERE UserID = ?';
-      updateParams = [username, email, contact, address, userId];
-    }
-    
-    db.query(updateQuery, updateParams, (err) => {
+    // Check if username is already taken by another user
+    const checkUsernameQuery = 'SELECT UserID FROM user WHERE UserName = ? AND UserID != ?';
+    db.query(checkUsernameQuery, [username, userId], (err, results) => {
       if (err) {
-        console.error('Update profile error:', err);
-        return res.redirect('/profile?error=1');
+        console.error('Username check error:', err);
+        return res.redirect('/profile?error=Database error occurred');
       }
       
-      console.log('Profile updated successfully. New imageFilename:', imageFilename);
+      // If username exists and belongs to another user
+      if (results.length > 0) {
+        return res.redirect('/profile?error=Username is already taken. Please choose a different username.');
+      }
       
-      // Update session with new information
-      req.session.user.username = username;
-      req.session.user.email = email;
+      // Handle profile picture upload if provided
+      let imageFilename = null;
+      if (req.file) {
+        imageFilename = req.file.filename; // Store just the filename for consistency
+        console.log('Profile image uploaded:', {
+          originalName: req.file.originalname,
+          filename: req.file.filename,
+          path: req.file.path
+        });
+      } else {
+        console.log('No file uploaded in request');
+      }
+      
+      // Update user information in database
+      let updateQuery, updateParams;
+      
       if (imageFilename) {
-        // Update session with properly constructed image path
-        req.session.user.profilePicUrl = '/images/users/' + imageFilename;
-        console.log('Updated session profilePicUrl:', req.session.user.profilePicUrl);
+        updateQuery = 'UPDATE user SET UserName = ?, Email = ?, Contact = ?, Address = ?, Image = ? WHERE UserID = ?';
+        updateParams = [username, email, contact, address, imageFilename, userId];
+      } else {
+        updateQuery = 'UPDATE user SET UserName = ?, Email = ?, Contact = ?, Address = ? WHERE UserID = ?';
+        updateParams = [username, email, contact, address, userId];
       }
       
-      res.redirect('/profile?success=1');
+      db.query(updateQuery, updateParams, (err) => {
+        if (err) {
+          console.error('Update profile error:', err);
+          return res.redirect('/profile?error=Failed to update profile. Please try again.');
+        }
+        
+        console.log('Profile updated successfully. New imageFilename:', imageFilename);
+        
+        // Update session with new information
+        req.session.user.username = username;
+        req.session.user.email = email;
+        if (imageFilename) {
+          // Update session with properly constructed image path and raw Image field
+          req.session.user.Image = imageFilename;
+          req.session.user.profilePicUrl = '/images/users/' + imageFilename;
+          console.log('Updated session profilePicUrl:', req.session.user.profilePicUrl);
+        }
+        
+        res.redirect('/profile?success=Profile updated successfully!');
+      });
     });
   } catch (error) {
     console.error('Update profile error:', error);
-    res.redirect('/profile?error=1');
+    res.redirect('/profile?error=An unexpected error occurred. Please try again.');
   }
 };
 
@@ -395,11 +411,52 @@ exports.changePassword = async (req, res) => {
 
     // Validate password match
     if (newPassword !== confirmPassword) {
-        return res.render('profile', {
-            user: req.session.user,
+        // Fetch complete user data for error rendering
+        const userQuery = `
+          SELECT u.UserID, u.UserName, u.Email, u.Contact, u.Address, u.Image,
+                 ut.TokenBalance, r.RoleName as role
+          FROM user u
+          LEFT JOIN usertokens ut ON u.UserID = ut.UserID
+          LEFT JOIN role r ON u.RoleID = r.RoleID
+          WHERE u.UserID = ?
+        `;
+        
+        db.query(userQuery, [userId], (err, userResults) => {
+          if (err || !userResults[0]) {
+            return res.render('profile', {
+              user: req.session.user,
+              error: 'New passwords do not match',
+              success: null
+            });
+          }
+          
+          const fullUser = userResults[0];
+          return res.render('profile', {
+            user: {
+              ...fullUser,
+              id: fullUser.UserID,
+              username: fullUser.UserName,
+              email: fullUser.Email,
+              tokens: fullUser.TokenBalance || 0,
+              profilePicUrl: (() => {
+                if (!fullUser.Image || fullUser.Image === 'default-avatar.svg') {
+                  return '/images/default-avatar.svg';
+                }
+                if (fullUser.Image.startsWith('/images/')) {
+                  return fullUser.Image;
+                }
+                return '/images/users/' + fullUser.Image;
+              })(),
+              role: fullUser.role,
+              Contact: fullUser.Contact,
+              Address: fullUser.Address,
+              preferences: req.session.user.preferences || {}
+            },
             error: 'New passwords do not match',
             success: null
+          });
         });
+        return;
     }
 
     // Get current user's password
@@ -407,11 +464,52 @@ exports.changePassword = async (req, res) => {
     db.query(getUserQuery, [userId], async (err, results) => {
         if (err) {
             console.error('Database error:', err);
-            return res.render('profile', {
-                user: req.session.user,
+            
+            // Fetch complete user data for error rendering
+            const userQuery = `
+              SELECT u.UserID, u.UserName, u.Email, u.Contact, u.Address, u.Image,
+                     ut.TokenBalance, r.RoleName as role
+              FROM user u
+              LEFT JOIN usertokens ut ON u.UserID = ut.UserID
+              LEFT JOIN role r ON u.RoleID = r.RoleID
+              WHERE u.UserID = ?
+            `;
+            
+            db.query(userQuery, [userId], (err, userResults) => {
+              if (err || !userResults[0]) {
+                return res.render('profile', {
+                  user: req.session.user,
+                  error: 'Failed to change password',
+                  success: null
+                });
+              }
+              
+              const fullUser = userResults[0];
+              return res.render('profile', {
+                user: {
+                  ...fullUser,
+                  id: fullUser.UserID,
+                  username: fullUser.UserName,
+                  email: fullUser.Email,
+                  tokens: fullUser.TokenBalance || 0,
+                  profilePicUrl: (() => {
+                    if (!fullUser.Image || fullUser.Image === 'default-avatar.svg') {
+                      return '/images/default-avatar.svg';
+                    }
+                    if (fullUser.Image.startsWith('/images/')) {
+                      return fullUser.Image;
+                    }
+                    return '/images/users/' + fullUser.Image;
+                  })(),
+                  role: fullUser.role,
+                  Contact: fullUser.Contact,
+                  Address: fullUser.Address || {}
+                },
                 error: 'Failed to change password',
                 success: null
+              });
             });
+            return;
         }
 
         const user = results[0];
@@ -432,11 +530,52 @@ exports.changePassword = async (req, res) => {
         }
 
         if (!passwordValid) {
-            return res.render('profile', {
-                user: req.session.user,
+            // Fetch complete user data for error rendering
+            const userQuery = `
+              SELECT u.UserID, u.UserName, u.Email, u.Contact, u.Address, u.Image,
+                     ut.TokenBalance, r.RoleName as role
+              FROM user u
+              LEFT JOIN usertokens ut ON u.UserID = ut.UserID
+              LEFT JOIN role r ON u.RoleID = r.RoleID
+              WHERE u.UserID = ?
+            `;
+            
+            db.query(userQuery, [userId], (err, userResults) => {
+              if (err || !userResults[0]) {
+                return res.render('profile', {
+                  user: req.session.user,
+                  error: 'Current password is incorrect',
+                  success: null
+                });
+              }
+              
+              const fullUser = userResults[0];
+              return res.render('profile', {
+                user: {
+                  ...fullUser,
+                  id: fullUser.UserID,
+                  username: fullUser.UserName,
+                  email: fullUser.Email,
+                  tokens: fullUser.TokenBalance || 0,
+                  profilePicUrl: (() => {
+                    if (!fullUser.Image || fullUser.Image === 'default-avatar.svg') {
+                      return '/images/default-avatar.svg';
+                    }
+                    if (fullUser.Image.startsWith('/images/')) {
+                      return fullUser.Image;
+                    }
+                    return '/images/users/' + fullUser.Image;
+                  })(),
+                  role: fullUser.role,
+                  Contact: fullUser.Contact,
+                  Address: fullUser.Address,
+                  preferences: req.session.user.preferences || {}
+                },
                 error: 'Current password is incorrect',
                 success: null
+              });
             });
+            return;
         }
 
         // Hash and update new password
@@ -447,25 +586,147 @@ exports.changePassword = async (req, res) => {
             db.query(updatePasswordQuery, [hashedPassword, userId], (err) => {
                 if (err) {
                     console.error('Password update error:', err);
-                    return res.render('profile', {
-                        user: req.session.user,
+                    
+                    // Fetch complete user data for error rendering
+                    const userQuery = `
+                      SELECT u.UserID, u.UserName, u.Email, u.Contact, u.Address, u.Image,
+                             ut.TokenBalance, r.RoleName as role
+                      FROM user u
+                      LEFT JOIN usertokens ut ON u.UserID = ut.UserID
+                      LEFT JOIN role r ON u.RoleID = r.RoleID
+                      WHERE u.UserID = ?
+                    `;
+                    
+                    db.query(userQuery, [userId], (err, userResults) => {
+                      if (err || !userResults[0]) {
+                        return res.render('profile', {
+                          user: req.session.user,
+                          error: 'Failed to update password',
+                          success: null
+                        });
+                      }
+                      
+                      const fullUser = userResults[0];
+                      return res.render('profile', {
+                        user: {
+                          ...fullUser,
+                          id: fullUser.UserID,
+                          username: fullUser.UserName,
+                          email: fullUser.Email,
+                          tokens: fullUser.TokenBalance || 0,
+                          profilePicUrl: (() => {
+                            if (!fullUser.Image || fullUser.Image === 'default-avatar.svg') {
+                              return '/images/default-avatar.svg';
+                            }
+                            if (fullUser.Image.startsWith('/images/')) {
+                              return fullUser.Image;
+                            }
+                            return '/images/users/' + fullUser.Image;
+                          })(),
+                          role: fullUser.role,
+                          Contact: fullUser.Contact,
+                          Address: fullUser.Address,
+                          preferences: req.session.user.preferences || {}
+                        },
                         error: 'Failed to update password',
                         success: null
+                      });
                     });
                 }
 
-                res.render('profile', {
-                    user: req.session.user,
+                // Fetch complete user data for success rendering
+                const userQuery = `
+                  SELECT u.UserID, u.UserName, u.Email, u.Contact, u.Address, u.Image,
+                         ut.TokenBalance, r.RoleName as role
+                  FROM user u
+                  LEFT JOIN usertokens ut ON u.UserID = ut.UserID
+                  LEFT JOIN role r ON u.RoleID = r.RoleID
+                  WHERE u.UserID = ?
+                `;
+                
+                db.query(userQuery, [userId], (err, userResults) => {
+                  if (err || !userResults[0]) {
+                    return res.render('profile', {
+                      user: req.session.user,
+                      error: null,
+                      success: 'Password updated successfully'
+                    });
+                  }
+                  
+                  const fullUser = userResults[0];
+                  res.render('profile', {
+                    user: {
+                      ...fullUser,
+                      id: fullUser.UserID,
+                      username: fullUser.UserName,
+                      email: fullUser.Email,
+                      tokens: fullUser.TokenBalance || 0,
+                      profilePicUrl: (() => {
+                        if (!fullUser.Image || fullUser.Image === 'default-avatar.svg') {
+                          return '/images/default-avatar.svg';
+                        }
+                        if (fullUser.Image.startsWith('/images/')) {
+                          return fullUser.Image;
+                        }
+                        return '/images/users/' + fullUser.Image;
+                      })(),
+                      role: fullUser.role,
+                      Contact: fullUser.Contact,
+                      Address: fullUser.Address,
+                      preferences: req.session.user.preferences || {}
+                    },
                     error: null,
                     success: 'Password updated successfully'
+                  });
                 });
             });
         } catch (err) {
             console.error('Password hashing error:', err);
-            return res.render('profile', {
-                user: req.session.user,
+            
+            // Fetch complete user data for error rendering
+            const userQuery = `
+              SELECT u.UserID, u.UserName, u.Email, u.Contact, u.Address, u.Image,
+                     ut.TokenBalance, r.RoleName as role
+              FROM user u
+              LEFT JOIN usertokens ut ON u.UserID = ut.UserID
+              LEFT JOIN role r ON u.RoleID = r.RoleID
+              WHERE u.UserID = ?
+            `;
+            
+            db.query(userQuery, [userId], (err, userResults) => {
+              if (err || !userResults[0]) {
+                return res.render('profile', {
+                  user: req.session.user,
+                  error: 'Failed to update password',
+                  success: null
+                });
+              }
+              
+              const fullUser = userResults[0];
+              return res.render('profile', {
+                user: {
+                  ...fullUser,
+                  id: fullUser.UserID,
+                  username: fullUser.UserName,
+                  email: fullUser.Email,
+                  tokens: fullUser.TokenBalance || 0,
+                  profilePicUrl: (() => {
+                    if (!fullUser.Image || fullUser.Image === 'default-avatar.svg') {
+                      return '/images/default-avatar.svg';
+                    }
+                    if (fullUser.Image.startsWith('/images/')) {
+                      return fullUser.Image;
+                    }
+                    return '/images/users/' + fullUser.Image;
+                  })(),
+                  role: fullUser.role,
+                  Contact: fullUser.Contact,
+                  Address: fullUser.Address,
+                  preferences: req.session.user.preferences || {}
+                },
                 error: 'Failed to update password',
                 success: null
+              });
             });
         }
     });

@@ -169,34 +169,56 @@ exports.showDashboard = async (req, res) => {
                   }
                 ];
 
-                res.render('user/dashboard', {
-                  user: {
-                    ...user,
-                    id: user.UserID,
-                    username: user.UserName,
-                    email: user.Email,
-                    tokens: user.TokenBalance || 0,
-                    profilePicUrl: (() => {
-                      if (!user.Image || user.Image === 'default-avatar.svg') {
-                        return '/images/default-avatar.svg';
-                      }
-                      // Handle both full paths and filenames
-                      if (user.Image.startsWith('/images/')) {
-                        return user.Image;
-                      }
-                      return '/images/users/' + user.Image;
-                    })()
-                  },
-                  stats: {
-                    totalModules,
-                    completedModules,
-                    totalChapters,
-                    completedChapters: totalCompletedChapters,
-                    completionRate: totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0,
-                    tokens: user.TokenBalance || 0
-                  },
-                  modules: modulesWithProgress,
-                  recentActivity
+                // Get user's redeemed rewards for dashboard preview
+                const redeemedQuery = `
+                  SELECT r.RewardID, r.RewardName, r.Description, r.TokenCost, r.RewardImage, ur.RedeemedAt
+                  FROM userrewards ur
+                  JOIN rewards r ON ur.RewardID = r.RewardID
+                  WHERE ur.UserID = ?
+                  ORDER BY ur.RedeemedAt DESC
+                  LIMIT 3
+                `;
+                db.query(redeemedQuery, [userId], (err, redeemedResults) => {
+                  let redeemedRewards = [];
+                  if (!err && redeemedResults && redeemedResults.length > 0) {
+                    redeemedRewards = redeemedResults.map(reward => ({
+                      name: reward.RewardName,
+                      description: reward.Description,
+                      cost: reward.TokenCost,
+                      image: reward.RewardImage,
+                      redeemedAt: reward.RedeemedAt
+                    }));
+                  }
+                  res.render('user/dashboard', {
+                    user: {
+                      ...user,
+                      id: user.UserID,
+                      username: user.UserName,
+                      email: user.Email,
+                      tokens: user.TokenBalance || 0,
+                      profilePicUrl: (() => {
+                        if (!user.Image || user.Image === 'default-avatar.svg') {
+                          return '/images/default-avatar.svg';
+                        }
+                        // Handle both full paths and filenames
+                        if (user.Image.startsWith('/images/')) {
+                          return user.Image;
+                        }
+                        return '/images/users/' + user.Image;
+                      })()
+                    },
+                    stats: {
+                      totalModules,
+                      completedModules,
+                      totalChapters,
+                      completedChapters: totalCompletedChapters,
+                      completionRate: totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0,
+                      tokens: user.TokenBalance || 0
+                    },
+                    modules: modulesWithProgress,
+                    recentActivity,
+                    redeemedRewards
+                  });
                 });
               });
             });
@@ -242,7 +264,7 @@ exports.showRewards = (req, res) => {
 
             // Get all available rewards
             const rewardsQuery = `
-                SELECT RewardID, RewardName, Description, TokenCost, QuantityAvailable
+                SELECT RewardID, RewardName, Description, TokenCost, QuantityAvailable, RewardImage
                 FROM rewards
                 WHERE IsActive = 1
                 ORDER BY TokenCost ASC
@@ -259,7 +281,7 @@ exports.showRewards = (req, res) => {
 
                 // Get user's redeemed rewards
                 const redeemedQuery = `
-                    SELECT r.RewardID, r.RewardName, r.TokenCost, ur.RedeemedAt
+                    SELECT r.RewardID, r.RewardName, r.TokenCost, r.RewardImage, ur.RedeemedAt
                     FROM userrewards ur
                     JOIN rewards r ON ur.RewardID = r.RewardID
                     WHERE ur.UserID = ?
@@ -823,8 +845,19 @@ exports.editProfileForm = (req, res) => {
         }
         // Check if any user with the given ID was found
         if (results.length > 0) {
-            // Render HTML page with the user data
-            res.render('editProfile', { userProfile: results[0] });
+            // Render profile page with the user data and URL parameters for messages
+            const userProfile = results[0];
+            res.render('profile', { 
+                user: {
+                    ...userProfile,
+                    username: userProfile.UserName,
+                    email: userProfile.Email,
+                    profilePicUrl: userProfile.Image ? '/images/users/' + userProfile.Image : '/images/default-avatar.svg',
+                    role: req.session.user.role || 'user'
+                },
+                error: req.query.error || null,
+                success: req.query.success || null
+            });
         } else {
             // If no user with the given ID was found, 
             //render a 404 page or handle it accordingly
@@ -838,27 +871,42 @@ exports.editProfile = (req, res) => {
     const userId = req.session.user.UserID;
     const { UserName, Email, Contact, Address } = req.body;
 
-    let Image = req.session.user.Image;
-    if (req.file) {
-        Image = req.file.filename;
-    }
-    const sql = `UPDATE user set 
-    UserName = ?, Email = ?, Contact = ?, Address = ?, Image = ? WHERE UserID = ?
-    `;
-    db.query(sql, [UserName, Email, Contact, Address, Image, userId], (err, result) => {
+    // Check if username is already taken by another user
+    const checkUsernameQuery = 'SELECT UserID FROM user WHERE UserName = ? AND UserID != ?';
+    db.query(checkUsernameQuery, [UserName, userId], (err, results) => {
         if (err) {
-            throw err;
+            console.error('Username check error:', err);
+            return res.redirect('/user/profile/edit?error=Database error occurred');
         }
-        // Update session with new profile data so changes reflect immediately
-        req.session.user.UserName = UserName;
-        req.session.user.Email = Email;
-        req.session.user.Contact = Contact;
-        req.session.user.Address = Address;
-        if (Image) {
-            req.session.user.Image = Image;
+        
+        // If username exists and belongs to another user
+        if (results.length > 0) {
+            return res.redirect('/user/profile/edit?error=Username is already taken. Please choose a different username.');
         }
-        console.log(result);
-        res.redirect('/profile');
+
+        let Image = req.session.user.Image;
+        if (req.file) {
+            Image = req.file.filename;
+        }
+        const sql = `UPDATE user set 
+        UserName = ?, Email = ?, Contact = ?, Address = ?, Image = ? WHERE UserID = ?
+        `;
+        db.query(sql, [UserName, Email, Contact, Address, Image, userId], (err, result) => {
+            if (err) {
+                console.error('Update profile error:', err);
+                return res.redirect('/user/profile/edit?error=Failed to update profile. Please try again.');
+            }
+            // Update session with new profile data so changes reflect immediately
+            req.session.user.UserName = UserName;
+            req.session.user.Email = Email;
+            req.session.user.Contact = Contact;
+            req.session.user.Address = Address;
+            if (Image) {
+                req.session.user.Image = Image;
+            }
+            console.log(result);
+            res.redirect('/user/dashboard?success=Profile updated successfully!');
+        });
     });
 };
 

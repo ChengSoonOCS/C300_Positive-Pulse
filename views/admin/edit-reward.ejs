@@ -236,7 +236,16 @@
       </div>
       
       <div class="reward-preview">
-        <div class="preview-icon">🎁</div>
+        <% if (reward.RewardImage) { %>
+          <div class="preview-image" id="preview-image">
+            <img id="preview-img" src="/images/rewards/<%= reward.RewardImage %>" alt="Reward Preview" style="max-width: 100px; max-height: 100px; border-radius: 8px;">
+          </div>
+        <% } else { %>
+          <div class="preview-icon" id="preview-icon">🎁</div>
+          <div class="preview-image" id="preview-image" style="display: none;">
+            <img id="preview-img" src="" alt="Reward Preview" style="max-width: 100px; max-height: 100px; border-radius: 8px;">
+          </div>
+        <% } %>
         <div class="preview-name" id="preview-name"><%= reward.RewardName %></div>
         <div class="preview-cost" id="preview-cost">🪙 <%= reward.TokenCost %> tokens</div>
         <div class="preview-description" id="preview-description"><%= reward.Description %></div>
@@ -245,7 +254,7 @@
         </div>
       </div>
       
-      <form method="POST" action="/admin/rewards/<%= reward.RewardID %>/edit">
+      <form method="POST" action="/admin/rewards/<%= reward.RewardID %>/edit" enctype="multipart/form-data">
         <div class="form-group">
           <label for="name">Reward Name *</label>
           <input type="text" id="name" name="name" required maxlength="100" 
@@ -257,6 +266,18 @@
           <label for="description">Description *</label>
           <textarea id="description" name="description" required maxlength="500"><%= reward.Description %></textarea>
           <div class="help-text">Provide clear instructions on how to use this reward</div>
+        </div>
+
+        <div class="form-group">
+          <label for="image">Reward Image</label>
+          <% if (reward.RewardImage) { %>
+            <div style="margin-bottom: 10px;">
+              <p>Current image:</p>
+              <img src="/images/rewards/<%= reward.RewardImage %>" alt="Current reward image" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #e0e0e0;">
+            </div>
+          <% } %>
+          <input type="file" id="image" name="RewardImage" accept="image/*">
+          <div class="help-text">Upload a new image for this reward (optional - leave empty to keep current image)</div>
         </div>
         
         <div class="form-row">
@@ -302,11 +323,15 @@
       const descriptionInput = document.getElementById('description');
       const costInput = document.getElementById('cost');
       const activeInput = document.getElementById('active');
+      const imageInput = document.getElementById('image');
       
       const previewName = document.getElementById('preview-name');
       const previewDescription = document.getElementById('preview-description');
       const previewCost = document.getElementById('preview-cost');
       const previewStatus = document.getElementById('preview-status');
+      const previewIcon = document.getElementById('preview-icon');
+      const previewImage = document.getElementById('preview-image');
+      const previewImg = document.getElementById('preview-img');
       
       // Update preview in real-time
       function updatePreview() {
@@ -317,6 +342,22 @@
         const isActive = activeInput.checked;
         previewStatus.textContent = isActive ? 'Active' : 'Inactive';
         previewStatus.className = `preview-status ${isActive ? 'status-active' : 'status-inactive'}`;
+      }
+      
+      // Handle image preview
+      if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              previewImg.src = e.target.result;
+              if (previewIcon) previewIcon.style.display = 'none';
+              previewImage.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+          }
+        });
       }
       
       nameInput.addEventListener('input', updatePreview);

@@ -25,8 +25,7 @@ const authController = require('./controllers/authController');
 const adminController = require('./controllers/adminController');
 const modulesController = require('./controllers/modulesController');
 const userController = require('./controllers/userController');
-//Adelson's Feedback and AI Controller
-const feedbackController = require('./controllers/feedbackController');
+//Adelson's AI Controller
 const AIController = require('./controllers/AIController');
 
 
@@ -36,10 +35,20 @@ const port = process.env.PORT || 3000;
 // Configure Multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './public/images/users');
+        // Determine destination based on field name
+        if (file.fieldname === 'rewardImage') {
+            cb(null, './public/images/rewards');
+        } else {
+            cb(null, './public/images/users');
+        }
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
+        // Get file extension
+        const ext = path.extname(file.originalname);
+        // Get filename without extension
+        const nameWithoutExt = path.basename(file.originalname, ext);
+        // Create new filename with timestamp
+        cb(null, Date.now() + '-' + nameWithoutExt + ext);
     }
 });
 const upload = multer({ storage: storage });
@@ -66,8 +75,43 @@ app.use(flash());
 // ====================
 
 // Home page
-app.get('/', (req, res) => {
-  res.render('index', { user: req.session.user || null });
+app.get('/', async (req, res) => {
+  try {
+    let user = req.session.user || null;
+    
+    // If user is logged in, get their profile image
+    if (user) {
+      const userQuery = `SELECT Image FROM user WHERE UserID = ?`;
+      
+      const userResult = await new Promise((resolve, reject) => {
+        db.query(userQuery, [user.id], (err, results) => {
+          if (err) reject(err);
+          else resolve(results[0] || null);
+        });
+      });
+      
+      if (userResult) {
+        user = {
+          ...user,
+          profilePicUrl: (() => {
+            if (!userResult.Image || userResult.Image === 'default-avatar.svg') {
+              return '/images/default-avatar.svg';
+            }
+            // Handle both full paths and filenames
+            if (userResult.Image.startsWith('/images/')) {
+              return userResult.Image;
+            }
+            return '/images/users/' + userResult.Image;
+          })()
+        };
+      }
+    }
+
+    res.render('index', { user: user });
+  } catch (error) {
+    console.error('Error in index route:', error);
+    res.render('index', { user: req.session.user || null });
+  }
 });
 
 // Education modules (guest accessible)
@@ -101,7 +145,17 @@ app.get('/compare', async (req, res) => {
         user = {
           ...user,
           tokens: userResult.TokenBalance || 0,
-          profilePicUrl: userResult.Image || '/images/default-avatar.svg'
+          profilePicUrl: (() => {
+            const image = userResult.Image;
+            if (!image || image === 'default-avatar.svg') {
+              return '/images/default-avatar.svg';
+            }
+            // Handle both full paths and filenames
+            if (image.startsWith('/images/')) {
+              return image;
+            }
+            return '/images/users/' + image;
+          })()
         };
       }
     }
@@ -113,47 +167,11 @@ app.get('/compare', async (req, res) => {
   }
 });
 
-// app.get('/game', async (req, res) => {
-//   try {
-//     let user = req.session.user || null;
-    
-//     // If user is logged in, get their current token balance
-//     if (user) {
-//       const userTokenQuery = `
-//         SELECT u.UserID, u.UserName, u.Email, u.RoleID, ut.TokenBalance, u.Image
-//         FROM user u
-//         LEFT JOIN usertokens ut ON u.UserID = ut.UserID
-//         WHERE u.UserID = ?
-//       `;
-      
-//       const userResult = await new Promise((resolve, reject) => {
-//         db.query(userTokenQuery, [user.id], (err, results) => {
-//           if (err) reject(err);
-//           else resolve(results[0] || null);
-//         });
-//       });
-      
-//       if (userResult) {
-//         user = {
-//           ...user,
-//           tokens: userResult.TokenBalance || 0,
-//           profilePicUrl: userResult.Image || '/images/default-avatar.svg'
-//         };
-//       }
-//     }
-    
-//     res.render('game', { user });
-//   } catch (error) {
-//     console.error('Game page error:', error);
-//     res.render('game', { user: req.session.user || null });
-//   }
-// });
-
 // Universal rewards page (accessible to all, different functionality based on auth)
 app.get('/rewards', async (req, res) => {
   try {
     // Get all active rewards
-    const rewardsQuery = 'SELECT RewardID, RewardName, Description, TokenCost, QuantityAvailable, IsActive FROM rewards WHERE IsActive = 1 ORDER BY TokenCost ASC';
+    const rewardsQuery = 'SELECT RewardID, RewardName, Description, TokenCost, QuantityAvailable, RewardImage, IsActive FROM rewards WHERE IsActive = 1 ORDER BY TokenCost ASC';
     
     const rewards = await new Promise((resolve, reject) => {
       db.query(rewardsQuery, (err, results) => {
@@ -188,7 +206,17 @@ app.get('/rewards', async (req, res) => {
         userWithTokens = {
           ...req.session.user,
           tokens: userTokens,
-          profilePicUrl: userResults[0].Image || '/images/default-avatar.svg'
+          profilePicUrl: (() => {
+            const image = userResults[0].Image;
+            if (!image || image === 'default-avatar.svg') {
+              return '/images/default-avatar.svg';
+            }
+            // Handle both full paths and filenames
+            if (image.startsWith('/images/')) {
+              return image;
+            }
+            return '/images/users/' + image;
+          })()
         };
       }
       
@@ -405,24 +433,23 @@ app.delete('/admin/modules/:id/chapters/:chapterId', checkAdmin, adminController
 // Admin reward management
 app.get('/admin/rewards', checkAdmin, adminController.showRewards);
 app.get('/admin/rewards/new', checkAdmin, adminController.showCreateReward);
-app.post('/admin/rewards', checkAdmin, adminController.createReward);
+app.post('/admin/rewards', checkAdmin, upload.single('RewardImage'), adminController.createReward);
 app.get('/admin/rewards/:id/edit', checkAdmin, adminController.showEditReward);
-app.post('/admin/rewards/:id/edit', checkAdmin, adminController.updateReward);
+app.post('/admin/rewards/:id/edit', checkAdmin, upload.single('RewardImage'), adminController.updateReward);
 app.delete('/admin/rewards/:id', checkAdmin, adminController.deleteReward);
 
 // ====================
 // ERROR HANDLING
 // ====================
 
-//ON BACK LATER BELOW
-// app.get('/401', (req, res) => {
-//   res.status(401).render('error', { 
-//     message: 'Access denied. You do not have permission to access this resource.',
-//     user: req.session.user || null
-//   });
-// });
+app.get('/401', (req, res) => {
+  res.status(401).render('error', { 
+    message: 'Access denied. You do not have permission to access this resource.',
+    user: req.session.user || null
+  });
+});
 
-// // 404 handler
+// 404 handler
 // app.use((req, res) => {
 //   res.status(404).render('error', {
 //     message: 'Page not found',
@@ -430,31 +457,24 @@ app.delete('/admin/rewards/:id', checkAdmin, adminController.deleteReward);
 //   });
 // });
 
-// // General error handler
-// app.use((err, req, res, next) => {
-//   console.error(err.stack);
-//   res.status(500).render('error', {
-//     message: 'Something went wrong!',
-//     user: req.session.user || null
-//   });
-// });
-//ON BACK LATER ABOVE
+// General error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).render('error', {
+    message: 'Something went wrong!',
+    user: req.session.user || null
+  });
+});
+
 
 // ====================
-//Adelson's Feedback and AI Routes
+//Adelson's AI Routes
 // ====================
 //AI routes
 app.get('/ai', checkAuthenticated, AIController.getAIChat);
 app.get('/ai-comparison', checkAuthenticated, AIController.getInsurancePlansComparison);
-// Feedback routes
-app.get('/feedback', checkAuthenticated, feedbackController.feedbackForm);
-app.post('/feedback/submit', checkAuthenticated, upload.single('attachment'), feedbackController.submitFeedback);
-// Admin Feedback Routes
-app.get('/admin/feedback/:id', checkAuthenticated, checkAdmin, feedbackController.getFeedback);
-app.post('/admin/feedback/:id/status', checkAuthenticated, checkAdmin, feedbackController.updateFeedbackStatus);
-app.delete('/admin/feedback/:id', checkAuthenticated, checkAdmin, feedbackController.deleteFeedback);
 // ====================
-//END OF Adelson's Feedback and AI Routes
+//END OF Adelson's AI Routes
 // ====================
 // Admin insurance plans management
 app.get('/admin/insurance-plans', checkAdmin, adminController.showInsurancePlans);

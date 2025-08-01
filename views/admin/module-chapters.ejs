@@ -78,15 +78,6 @@
       color: #333;
     }
     
-    .chapter-preview {
-      color: #666;
-      font-size: 0.9rem;
-      max-width: 60ch;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    
     .chapter-actions {
       display: flex;
       gap: 10px;
@@ -137,11 +128,9 @@
           <div class="chapter-item">
             <div class="chapter-info">
               <h3><%= chapter.Title %></h3>
-              <div class="chapter-preview"><%- chapter.Content.replace(/<[^>]*>/g, '') %></div>
             </div>
             <div class="chapter-actions">
               <a href="/admin/modules/<%= module.ModuleID %>/chapters/<%= chapter.ChapterID %>/edit" class="btn btn-small">Edit</a>
-              <a href="/education/modules/<%= module.ModuleID %>?chapter=<%= chapter.ChapterID %>" class="btn btn-small">Preview</a>
               <button class="btn btn-danger btn-small delete-chapter-btn" data-chapter-id="<%= chapter.ChapterID %>">Delete</button>
             </div>
           </div>
