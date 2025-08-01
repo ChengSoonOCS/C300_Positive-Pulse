@@ -41,7 +41,7 @@ exports.login = async (req, res) => {
 
     // Find user by username with role information and questionnaire response
     const userQuery = `
-        SELECT u.UserID, u.UserName, u.Email, u.Password, u.RoleID, u.image,
+        SELECT u.UserID, u.UserName, u.Email, u.Password, u.RoleID, u.Image,
                u.QuestionnaireID, r.RoleName as role, ut.TokenBalance
         FROM user u
         LEFT JOIN role r ON u.RoleID = r.RoleID

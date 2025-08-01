@@ -7,7 +7,7 @@ exports.showDashboard = async (req, res) => {
     
     // Get user info with token balance
     const userQuery = `
-      SELECT u.UserID, u.UserName, u.Email, u.CreationDate, u.image, 
+      SELECT u.UserID, u.UserName, u.Email, u.CreationDate, u.Image, 
              ut.TokenBalance, r.RoleName as role
       FROM user u
       LEFT JOIN usertokens ut ON u.UserID = ut.UserID

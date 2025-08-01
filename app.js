@@ -84,7 +84,7 @@ app.get('/compare', async (req, res) => {
     // If user is logged in, get their current token balance
     if (user) {
       const userTokenQuery = `
-        SELECT u.UserID, u.UserName, u.Email, u.RoleID, ut.TokenBalance, u.profileImage
+        SELECT u.UserID, u.UserName, u.Email, u.RoleID, ut.TokenBalance, uImage
         FROM user u
         LEFT JOIN usertokens ut ON u.UserID = ut.UserID
         WHERE u.UserID = ?
@@ -101,7 +101,7 @@ app.get('/compare', async (req, res) => {
         user = {
           ...user,
           tokens: userResult.TokenBalance || 0,
-          profilePicUrl: userResult.profileImage || '/images/default-avatar.svg'
+          profilePicUrl: userResult.Image || '/images/default-avatar.svg'
         };
       }
     }
@@ -120,7 +120,7 @@ app.get('/compare', async (req, res) => {
 //     // If user is logged in, get their current token balance
 //     if (user) {
 //       const userTokenQuery = `
-//         SELECT u.UserID, u.UserName, u.Email, u.RoleID, ut.TokenBalance, u.profileImage
+//         SELECT u.UserID, u.UserName, u.Email, u.RoleID, ut.TokenBalance, u.Image
 //         FROM user u
 //         LEFT JOIN usertokens ut ON u.UserID = ut.UserID
 //         WHERE u.UserID = ?
@@ -137,7 +137,7 @@ app.get('/compare', async (req, res) => {
 //         user = {
 //           ...user,
 //           tokens: userResult.TokenBalance || 0,
-//           profilePicUrl: userResult.profileImage || '/images/default-avatar.svg'
+//           profilePicUrl: userResult.Image || '/images/default-avatar.svg'
 //         };
 //       }
 //     }
@@ -170,7 +170,7 @@ app.get('/rewards', async (req, res) => {
     if (req.session.user) {
       // Get user's complete data including token balance
       const userTokenQuery = `
-        SELECT u.UserID, u.UserName, u.Email, u.RoleID, ut.TokenBalance, u.profileImage
+        SELECT u.UserID, u.UserName, u.Email, u.RoleID, ut.TokenBalance, u.Image
         FROM user u
         LEFT JOIN usertokens ut ON u.UserID = ut.UserID
         WHERE u.UserID = ?
@@ -188,7 +188,7 @@ app.get('/rewards', async (req, res) => {
         userWithTokens = {
           ...req.session.user,
           tokens: userTokens,
-          profilePicUrl: userResults[0].profileImage || '/images/default-avatar.svg'
+          profilePicUrl: userResults[0].Image || '/images/default-avatar.svg'
         };
       }
       
@@ -444,7 +444,7 @@ app.delete('/admin/rewards/:id', checkAdmin, adminController.deleteReward);
 //Adelson's Feedback and AI Routes
 // ====================
 //AI routes
-app.get('/ai',  AIController.getAIChat);
+app.get('/ai', checkAuthenticated, AIController.getAIChat);
 app.get('/ai-comparison', checkAuthenticated, AIController.getInsurancePlansComparison);
 // Feedback routes
 app.get('/feedback', checkAuthenticated, feedbackController.feedbackForm);
