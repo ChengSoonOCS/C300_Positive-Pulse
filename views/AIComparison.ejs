@@ -616,7 +616,7 @@
                 customCSS: ``,
                 chatWindow: {
                     showTitle: true,
-                    showAgentMessages: true,
+                    showAgentMessages: false,
                     title: '+Pulse Insurance Assistant',
                     titleAvatarSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
                     welcomeMessage: "👋 Welcome to the PRUShield Recommender/Assistant!\n\nWe're here to make health insurance easier to understand. Whether you're new to Integrated Shield Plans or looking to explore better options, this platform will guide you through it step by step.\n\n🧠 Ask any questions you have, or let us help you find the best plan based on your needs.\n\n💡 Tip: To get the most accurate recommendation, we may ask you a few quick questions first.\n\nReady to get started??",
@@ -674,7 +674,7 @@
     </script>
 
     <script>
-        let selectedPlans = <%= JSON.stringify(selectedPlanIds) %> || [];
+    let selectedPlans = <%- JSON.stringify(selectedPlanIds) %>;
         
         // Initialize UI state when page loads
         document.addEventListener('DOMContentLoaded', function() {

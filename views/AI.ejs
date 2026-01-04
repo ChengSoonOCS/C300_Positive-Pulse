@@ -189,93 +189,93 @@
       </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js" type="module"></script>
-    <script type="module">
-      import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
-      function generateSessionId() {
-        return 'session_' + Math.random().toString(36).substr(2, 9)
-      }
-      let sessionId = generateSessionId();
-      window.flowiseSessionId = sessionId;
-      Chatbot.initFull({
-        chatflowid: "42040f2c-f3f4-4954-9599-2dcd9162b5a5",
-        apiHost: "https://cloud.flowiseai.com",
-        chatflowConfig: {
-          sessionId: sessionId
-        },
-        theme: {
-          chatWindow: {
-            backgroundColor: "#ffffff",
-            height: "100%",
-            width: "100%",
-            fontSize: 16,
-            showTitle: false,
-            poweredByTextColor: "#303235",
-            clearChatOnReload: true,
-            welcomeMessage: "👋 Welcome to the +Pulse AI Insurance Game!\n\nYou're about to dive into two fun and interactive game modes:\n\n **Insurance Agent Game**\nStep into the shoes of an insurance advisor! You'll meet different personas with unique life situations. Your goal is to recommend the most suitable insurance plans for them. Think carefully and explain your choices!\n\n **Insurance Detective Game**\nA persona has been denied an insurance claim. Your job? Investigate and uncover why the claim failed. analyze their coverage, and spot the missing details!\n🔹 To begin, simply type **start** or say **I want to play**. The AI will guide you from there.\n\nGet ready to test your insurance knowledge. Let's play!",
-            botMessage: {
-              backgroundColor: "#f7f8ff",
-              textColor: "#303235",
-              showAvatar: false,
-              avatarSrc: "/images/robot-avatar.png",
-            },
-            userMessage: {
-              backgroundColor: "#a46fdb",
-              textColor: "#fff",
-              showAvatar: false,
-              avatarSrc: "/images/user-avatar.png"
-            },
-            textInput: {
-              placeholder: "Type your question",
-              backgroundColor: "#ffffff",
-              textColor: "#303235",
-              sendButtonColor: "#ff2c58",
-              borderTop: "2px solid #ecc1cb"
-            }
+  <script type="module">
+    import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
+    function generateSessionId() {
+      return 'session_' + Math.random().toString(36).substr(2, 9)
+    }
+    let sessionId = generateSessionId();
+    window.flowiseSessionId = sessionId;
+    Chatbot.initFull({
+      chatflowid: "42040f2c-f3f4-4954-9599-2dcd9162b5a5",
+      apiHost: "https://cloud.flowiseai.com",
+      chatflowConfig: {
+        sessionId: sessionId
+      },
+      theme: {
+        chatWindow: {
+          backgroundColor: "#ffffff",
+          height: "100%",
+          width: "100%",
+          fontSize: 16,
+          showTitle: false,
+          poweredByTextColor: "#303235",
+          clearChatOnReload: true,
+          welcomeMessage: "👋 Welcome to the +Pulse AI Insurance Game!\n\nYou're about to dive into two fun and interactive game modes:\n\n **Insurance Agent Game**\nStep into the shoes of an insurance advisor! You'll meet different personas with unique life situations. Your goal is to recommend the most suitable insurance plans for them. Think carefully and explain your choices!\n\n **Insurance Detective Game**\nA persona has been denied an insurance claim. Your job? Investigate and uncover why the claim failed. analyze their coverage, and spot the missing details!\n🔹 To begin, simply type **start** or say **I want to play**. The AI will guide you from there.\n\nGet ready to test your insurance knowledge. Let's play!",
+          botMessage: {
+            backgroundColor: "#f7f8ff",
+            textColor: "#303235",
+            showAvatar: false,
+            avatarSrc: "/images/robot-avatar.png",
           },
-          customCSS: `
-        .flowise-full-chat, .chatbot-container {
-          border-radius: 0 0 32px 32px !important;
-          display: flex !important;
-          flex-direction: column !important;
-          height: 100% !important;
-          overflow: hidden !important;
-        }
-        .chat-messages-container {
-          flex: 1 1 auto !important;
-          overflow-y: auto !important;
-          padding: 1rem !important;
-          max-height: unset !important;
-          scrollbar-width: thin !important;
-          scrollbar-color: #e84d70 #f7f8ff !important;
-        }
-        .chat-messages-container::-webkit-scrollbar {
-          width: 8px !important;
-        }
-        .chat-messages-container::-webkit-scrollbar-thumb {
-          background: #e84d70 !important;
-          border-radius: 8px !important;
-        }
-        .chat-messages-container::-webkit-scrollbar-track {
-          background: #f7f8ff !important;
-        }
-        .chat-input-container {
-          position: absolute !important;
-          left: 0 !important;
-          right: 0 !important;
-          bottom: 0 !important;
-          background: white !important;
-          padding: 1rem !important;
-          border-top: 2.5px solid #ecc1cb !important;
-          z-index: 10 !important;
-          border-radius: 0 0 32px 32px !important;
-        }
-      `
-        }
-      })
-      document.getElementById('refresh-chat').onclick = function () {
-        window.location.reload();
+          userMessage: {
+            backgroundColor: "#a46fdb",
+            textColor: "#fff",
+            showAvatar: false,
+            avatarSrc: "/images/user-avatar.png"
+          },
+          textInput: {
+            placeholder: "Type your question",
+            backgroundColor: "#ffffff",
+            textColor: "#303235",
+            sendButtonColor: "#ff2c58",
+            borderTop: "2px solid #ecc1cb"
+          }
+        },
+        customCSS: `
+      .flowise-full-chat, .chatbot-container {
+        border-radius: 0 0 32px 32px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        overflow: hidden !important;
       }
-    </script>
+      .chat-messages-container {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        padding: 1rem !important;
+        max-height: unset !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: #e84d70 #f7f8ff !important;
+      }
+      .chat-messages-container::-webkit-scrollbar {
+        width: 8px !important;
+      }
+      .chat-messages-container::-webkit-scrollbar-thumb {
+        background: #e84d70 !important;
+        border-radius: 8px !important;
+      }
+      .chat-messages-container::-webkit-scrollbar-track {
+        background: #f7f8ff !important;
+      }
+      .chat-input-container {
+        position: absolute !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: white !important;
+        padding: 1rem !important;
+        border-top: 2.5px solid #ecc1cb !important;
+        z-index: 10 !important;
+        border-radius: 0 0 32px 32px !important;
+      }
+    `
+      }
+    })
+    document.getElementById('refresh-chat').onclick = function () {
+      window.location.reload();
+    }
+  </script>
     <!--%- include('partials/footer') % !-->
 </body>
 
